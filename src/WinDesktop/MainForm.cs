@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Media;
 using System.Text;
 using System.Windows.Forms;
 
@@ -89,26 +90,27 @@ namespace WinDesktop
             if (m != null)
             {
                 var zone = GetClickedZone(m.Location);
-                //InvalidateZone(this.Attacking);
-                this.Attacking = zone;
-                //InvalidateZone(this.Attacking);
-                this.Invalidate();
+                if (zone != null)
+                {
+                    // Set an attacker
+                    if (this.Attacking == null)
+                    {
+                        this.Attacking = zone;
+                        this.Invalidate();
+                        return;
+                    }
+
+                    // Set a defender
+                    if (!GameBoard.Rules.Attack(Attacking, zone))
+                    {
+                        SystemSounds.Beep.Play();
+                    }
+                    this.Attacking = null;
+                    this.Invalidate();
+                    return;
+                }
             }
         }
-
-        //private void InvalidateZone(Zone z)
-        //{
-        //    if (z != null)
-        //    {
-        //        foreach (var kvp in ViewMap)
-        //        {
-        //            if (kvp.Value == z)
-        //            {
-        //                this.Invalidate(new Rectangle(((int)kvp.Key.X) - 1, ((int)kvp.Key.Y) - 1, ((int)kvp.Key.Width) + 2, ((int)kvp.Key.Height) + 2));
-        //            }
-        //        }
-        //    }
-        //}
 
         public static Color Lighten(Color color, float pct)
         {

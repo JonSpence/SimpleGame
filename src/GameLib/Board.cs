@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using GameLib.Rules;
+using System.Linq;
 
 namespace GameLib
 {
@@ -12,6 +14,7 @@ namespace GameLib
         public int NumPlayers { get; private set; }
         public List<Zone> Zones { get; set;  }
         public List<Player> Players { get; set; }
+        public BaseRules Rules { get; set; }
 
         public static Color[] COLOR_LIST = new Color[] { Color.ForestGreen, Color.CornflowerBlue, Color.Red, Color.DarkMagenta, Color.MediumPurple, Color.DarkOrange, Color.RosyBrown, Color.DarkOrchid };
 
@@ -28,6 +31,7 @@ namespace GameLib
             b.NumPlayers = players;
             b.Players = new List<Player>();
             b.Zones = new List<Zone>();
+            b.Rules = new BaseRules();
 
             // Setup players
             for (int i = 0; i < Math.Min(players, COLOR_LIST.Length); i++)
@@ -55,6 +59,12 @@ namespace GameLib
                     };
                     b.Zones.Add(z);
                 }
+            }
+
+            // Figure out neighbors
+            foreach (var z in b.Zones)
+            {
+                z.Neighbors = (from n in b.Zones where z.IsNeighbor(n) select n).ToList();
             }
 
             // Randomly assign zones to players
