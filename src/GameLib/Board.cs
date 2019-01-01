@@ -13,7 +13,7 @@ namespace GameLib
         public List<Zone> Zones { get; set;  }
         public List<Player> Players { get; set; }
 
-        public static Color[] COLOR_LIST = new Color[] { Color.ForestGreen, Color.CornflowerBlue, Color.Red, Color.Yellow, Color.MediumPurple, Color.Orange, Color.RosyBrown, Color.GhostWhite };
+        public static Color[] COLOR_LIST = new Color[] { Color.ForestGreen, Color.CornflowerBlue, Color.Red, Color.DarkMagenta, Color.MediumPurple, Color.DarkOrange, Color.RosyBrown, Color.DarkOrchid };
 
         /// <summary>;
         /// Initialize a new game board
@@ -50,6 +50,7 @@ namespace GameLib
                     {
                         X = i,
                         Y = j,
+                        Strength = 1,
                         Owner = null
                     };
                     b.Zones.Add(z);
@@ -65,9 +66,22 @@ namespace GameLib
                 var picked = r.Next(unassigned.Count - 1);
                 var zone = unassigned[picked];
                 zone.Owner = b.Players[nextPlayer];
+                zone.Owner.Zones.Add(zone);
                 unassigned.RemoveAt(picked);
                 nextPlayer++;
                 if (nextPlayer >= b.Players.Count) nextPlayer = 0;
+            }
+
+            // Randomly reinforce zones
+            int reinforcements = (int)(width * height * 3 / players);
+            for (int i = 0; i < players; i++)
+            {
+                for (int j = 0; j < reinforcements; j++)
+                {
+                    var toReinforce = r.Next(b.Players[i].Zones.Count);
+                    var z = b.Players[i].Zones[toReinforce];
+                    z.Strength++;
+                }
             }
             return b;
         }
