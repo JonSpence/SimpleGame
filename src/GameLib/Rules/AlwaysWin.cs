@@ -1,12 +1,13 @@
-﻿using System;
+﻿using GameLib.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace GameLib.Rules
 {
-    public class BaseRules
+    public class AlwaysWin : IBattleRule
     {
-        public virtual bool Attack(Zone attacker, Zone defender)
+        public bool Attack(Board b, Zone attacker, Zone defender)
         {
             // Basic tests
             if (attacker == null || defender == null) return false;

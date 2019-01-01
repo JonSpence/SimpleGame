@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameLib
 {
@@ -12,7 +13,7 @@ namespace GameLib
         public List<Zone> Neighbors { get; set; }
 
 
-        public bool IsNeighbor(Zone neighbor)
+        public bool IsNeighborOf(Zone neighbor)
         {
             if (neighbor.X == X)
             {
@@ -23,6 +24,11 @@ namespace GameLib
                 return Math.Abs(neighbor.X - X) == 1;
             }
             return false;
+        }
+
+        public bool BordersAnEnemy()
+        {
+            return (from n in Neighbors where n.Owner != Owner select n).Any();
         }
     }
 }

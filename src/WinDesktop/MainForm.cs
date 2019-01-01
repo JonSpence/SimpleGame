@@ -101,7 +101,7 @@ namespace WinDesktop
                     }
 
                     // Set a defender
-                    if (!GameBoard.Rules.Attack(Attacking, zone))
+                    if (!GameBoard.BattleRule.Attack(GameBoard, Attacking, zone))
                     {
                         SystemSounds.Beep.Play();
                     }
@@ -135,6 +135,19 @@ namespace WinDesktop
                 }
             }
             return null;
+        }
+
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'R' || e.KeyChar == 'r')
+            {
+                foreach (var p in GameBoard.Players)
+                {
+                    int reinforcements = GameBoard.GetLargestArea(p).Count;
+                    GameBoard.ReinforcementRule.Reinforce(GameBoard, p, reinforcements);
+                    Invalidate();
+                }
+            }
         }
     }
 }
