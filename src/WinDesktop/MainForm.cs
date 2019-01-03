@@ -18,12 +18,18 @@ namespace WinDesktop
         public Dictionary<RectangleF, Zone> ViewMap { get; set; }
         public Zone Attacking { get; set; }
         public Zone Defending { get; set; }
+        public string StatusMessage { get; set; }
+        public BattleResult CurrentAttack { get; set; }
+        public DateTime? StatusTime { get; set; }
+
 
         public MainForm()
         {
             InitializeComponent();
             ResizeRedraw = true;
             DoubleBuffered = true;
+            StatusMessage = "";
+            StatusTime = DateTime.UtcNow;
 
             // Basic setup
             GameBoard = Board.NewBoard(10, 10, 6);
@@ -44,6 +50,7 @@ namespace WinDesktop
 
             // Draw status
             e.Graphics.DrawString($"Turn: Player {GameBoard.Players[GameBoard.CurrentTurn].Name}", drawFont, drawBrush, new PointF(0, 0));
+            e.Graphics.DrawString(StatusMessage, drawFont, drawBrush, new PointF(0, 30));
 
             // Figure out cell height and width
             float cellHeight = board_height * 1.0f / GameBoard.Height;
@@ -140,8 +147,17 @@ namespace WinDesktop
             }
             else
             {
-                MessageBox.Show($"Battle Result: {result.Plan.Attacker.X + 1}/{result.Plan.Attacker.Y + 1} vs {result.Plan.Defender.X + 1}/{result.Plan.Defender.Y + 1}: {result.AttackSucceeded}");
-                result.UpdateBoardTask.RunSynchronously();
+                StatusMessage = $"Battle Result: {result.Plan.Attacker.X + 1}/{result.Plan.Attacker.Y + 1} vs {result.Plan.Defender.X + 1}/{result.Plan.Defender.Y + 1}:";
+                if (result.AttackSucceeded)
+                {
+                    StatusMessage += " Victory!";
+                } else
+                {
+                    StatusMessage += " Failed.";
+                }
+                StatusTime = DateTime.UtcNow;
+                CurrentAttack = result;
+                Invalidate();
             }
             this.Attacking = null;
             this.Invalidate();
@@ -184,7 +200,7 @@ namespace WinDesktop
             else if (e.KeyChar == 'A' || e.KeyChar == 'a')
             {
                 var bot = new RandomBot();
-                var plan = bot.PickNextAttack(GameBoard, GameBoard.Players[GameBoard.CurrentTurn]);
+                var plan = bot.PickNextAttack(GameBoard, GameBoard.CurrentPlayer);
                 if (plan == null)
                 {
                     MessageBox.Show("No attacks!");
@@ -192,6 +208,43 @@ namespace WinDesktop
                 else
                 {
                     ExecuteAttackPlan(plan);
+                }
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (StatusTime != null) {
+                var ts = DateTime.UtcNow - StatusTime.Value;
+                if (ts.TotalMilliseconds > 500)
+                {
+                    // Was there a current attack?
+                    if (CurrentAttack != null)
+                    {
+                        CurrentAttack.UpdateBoardTask.RunSynchronously();
+                    }
+
+                    // Clear all status
+                    StatusMessage = "";
+                    StatusTime = null;
+                    CurrentAttack = null;
+
+                    // If the current player is a bot, do another attack
+                    if (!GameBoard.CurrentPlayer.IsHuman)
+                    {
+                        var plan = GameBoard.CurrentPlayer.Bot.PickNextAttack(GameBoard, GameBoard.CurrentPlayer);
+                        if (plan == null)
+                        {
+                            GameBoard.EndTurn();
+                            StatusTime = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            ExecuteAttackPlan(plan);
+                        }
+                        Invalidate();
+
+                    }
                 }
             }
         }

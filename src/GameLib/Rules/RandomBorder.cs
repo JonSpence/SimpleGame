@@ -14,6 +14,7 @@ namespace GameLib.Rules
 
             // Find border zones within this area
             var borders = (from z in area where z.BordersAnEnemy() select z).ToList();
+            if (borders.Count == 0) borders = p.Zones;
 
             // Now add reinforcements
             for (int i = 0; i < reinforcements; i++)

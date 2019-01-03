@@ -12,13 +12,7 @@ namespace GameLib.Rules
         public BattleResult Attack(Board b, Player p, AttackPlan plan)
         {
             // Basic tests
-            if (plan.Attacker == null
-                || plan.Defender == null
-                || plan.Attacker.Owner == null
-                || plan.Attacker.Owner != p
-                || plan.Attacker.Strength <= 1
-                || !plan.Attacker.Neighbors.Contains(plan.Defender)
-                || plan.Attacker.Owner == plan.Defender.Owner)
+            if (b.AttackIsInvalid(plan))
             {
                 return BattleResult.INVALID;
             }

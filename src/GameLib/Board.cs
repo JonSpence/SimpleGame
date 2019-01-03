@@ -5,6 +5,8 @@ using System.Drawing;
 using GameLib.Rules;
 using System.Linq;
 using GameLib.Interfaces;
+using GameLib.Bots;
+using GameLib.Messages;
 
 namespace GameLib
 {
@@ -42,7 +44,7 @@ namespace GameLib
             b.NumPlayers = players;
             b.Players = new List<Player>();
             b.Zones = new List<Zone>();
-            b.BattleRule = new AlwaysWin();
+            b.BattleRule = new HighestRoll();
             b.ReinforcementRule = new RandomBorder();
             b.Random = new Random();
 
@@ -57,6 +59,9 @@ namespace GameLib
                     Color = COLOR_LIST[i],
                     Name = COLOR_LIST[i].ToString(),
                     Number = i,
+                    IsDead = false,
+                    Bot = new RandomBot(),
+                    IsHuman = false,
                     Zones = new List<Zone>()
                 };
                 b.Players.Add(p);
@@ -108,6 +113,23 @@ namespace GameLib
             return b;
         }
 
+        /// <summary>
+        /// Current player
+        /// </summary>
+        /// <returns></returns>
+        public Player CurrentPlayer
+        {
+            get
+            {
+                return Players[CurrentTurn];
+            }
+        }
+
+        /// <summary>
+        /// Figure out the largest contiguous area owned by a player
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         public List<Zone> GetLargestArea(Player p)
         {
             List<Zone> largestArea = new List<Zone>();
@@ -170,6 +192,38 @@ namespace GameLib
                 }
                 if (!Players[CurrentTurn].IsDead) break;
             }
+        }
+
+        /// <summary>
+        /// Basic dice implementation
+        /// </summary>
+        /// <param name="NumDice"></param>
+        /// <param name="DieFaces"></param>
+        /// <returns></returns>
+        public int Roll(int NumDice, int DieFaces)
+        {
+            int total = 0;
+            for (int i = 0; i < NumDice; i++)
+            {
+                total += Random.Next(DieFaces) + 1;
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// Returns true if this attack is invalid
+        /// </summary>
+        /// <param name="plan"></param>
+        /// <returns></returns>
+        public bool AttackIsInvalid(AttackPlan plan)
+        {
+            return (plan == null
+                || plan.Attacker == null
+                || plan.Defender == null
+                || plan.Attacker.Owner == null
+                || plan.Attacker.Strength <= 1
+                || !plan.Attacker.Neighbors.Contains(plan.Defender)
+                || plan.Attacker.Owner == plan.Defender.Owner);
         }
     }
 }
