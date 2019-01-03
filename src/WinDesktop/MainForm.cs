@@ -1,4 +1,6 @@
 ﻿using GameLib;
+using GameLib.Bots;
+using GameLib.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,13 +33,23 @@ namespace WinDesktop
         {
             Dictionary<RectangleF, Zone> dict = new Dictionary<RectangleF, Zone>();
 
-            // Figure out cell height and width
-            float cellHeight = this.ClientSize.Height * 1.0f / GameBoard.Height;
-            float cellWidth = this.ClientSize.Width * 1.0f / GameBoard.Width;
-
-            // Text settings
+            // Font info
             Font drawFont = new Font("Arial", 16);
             SolidBrush drawBrush = new SolidBrush(Color.Black);
+
+            // Reserve room for status information
+            var status_height = 150;
+            var board_height = this.ClientSize.Height - status_height;
+            var board_width = this.ClientSize.Width;
+
+            // Draw status
+            e.Graphics.DrawString($"Turn: Player {GameBoard.Players[GameBoard.CurrentTurn].Name}", drawFont, drawBrush, new PointF(0, 0));
+
+            // Figure out cell height and width
+            float cellHeight = board_height * 1.0f / GameBoard.Height;
+            float cellWidth = board_width * 1.0f / GameBoard.Width;
+
+            // Text settings
             StringFormat drawFormat = new StringFormat();
             drawFormat.Alignment = StringAlignment.Center;
             drawFormat.LineAlignment = StringAlignment.Center;
@@ -64,13 +76,13 @@ namespace WinDesktop
                 }
 
                 // Draw rectangle
-                RectangleF r = new RectangleF(cellWidth * z.X, cellHeight * z.Y, cellWidth, cellHeight);
+                RectangleF r = new RectangleF(cellWidth * z.X, status_height + cellHeight * z.Y, cellWidth, cellHeight);
                 e.Graphics.FillRectangle(brush, r);
 
                 // Draw border if attacking
                 if (isAttacking)
                 {
-                    e.Graphics.DrawRectangle(new Pen(Color.Black), r.X, r.Y, cellWidth-1, cellHeight-1);
+                    e.Graphics.DrawRectangle(new Pen(Color.Black), r.X, status_height + r.Y, cellWidth-1, cellHeight-1);
                 }
 
                 // Draw strength centered in the box
@@ -95,21 +107,45 @@ namespace WinDesktop
                     // Set an attacker
                     if (this.Attacking == null)
                     {
+                        if (zone.Owner.Number != GameBoard.CurrentTurn)
+                        {
+                            SystemSounds.Beep.Play();
+                            return;
+                        }
                         this.Attacking = zone;
                         this.Invalidate();
                         return;
                     }
 
-                    // Set a defender
-                    if (!GameBoard.BattleRule.Attack(GameBoard, Attacking, zone))
+                    // Setup attack plan
+                    var plan = new AttackPlan()
                     {
-                        SystemSounds.Beep.Play();
-                    }
-                    this.Attacking = null;
-                    this.Invalidate();
+                        Attacker = Attacking,
+                        Defender = zone
+                    };
+
+                    // Set a defender
+                    ExecuteAttackPlan(plan);
                     return;
                 }
             }
+        }
+
+        private void ExecuteAttackPlan(AttackPlan plan)
+        {
+            var result = GameBoard.BattleRule.Attack(GameBoard, GameBoard.Players[GameBoard.CurrentTurn], plan);
+            if (result.AttackWasInvalid)
+            {
+                SystemSounds.Beep.Play();
+            }
+            else
+            {
+                MessageBox.Show($"Battle Result: {result.Plan.Attacker.X + 1}/{result.Plan.Attacker.Y + 1} vs {result.Plan.Defender.X + 1}/{result.Plan.Defender.Y + 1}: {result.AttackSucceeded}");
+                result.UpdateBoardTask.RunSynchronously();
+            }
+            this.Attacking = null;
+            this.Invalidate();
+            return;
         }
 
         public static Color Lighten(Color color, float pct)
@@ -139,13 +175,23 @@ namespace WinDesktop
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // End Turn command
             if (e.KeyChar == 'R' || e.KeyChar == 'r')
             {
-                foreach (var p in GameBoard.Players)
+                GameBoard.EndTurn();
+                Invalidate();
+            }
+            else if (e.KeyChar == 'A' || e.KeyChar == 'a')
+            {
+                var bot = new RandomBot();
+                var plan = bot.PickNextAttack(GameBoard, GameBoard.Players[GameBoard.CurrentTurn]);
+                if (plan == null)
                 {
-                    int reinforcements = GameBoard.GetLargestArea(p).Count;
-                    GameBoard.ReinforcementRule.Reinforce(GameBoard, p, reinforcements);
-                    Invalidate();
+                    MessageBox.Show("No attacks!");
+                }
+                else
+                {
+                    ExecuteAttackPlan(plan);
                 }
             }
         }

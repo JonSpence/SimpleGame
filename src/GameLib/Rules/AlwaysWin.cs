@@ -1,28 +1,50 @@
 ﻿using GameLib.Interfaces;
+using GameLib.Messages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameLib.Rules
 {
     public class AlwaysWin : IBattleRule
     {
-        public bool Attack(Board b, Zone attacker, Zone defender)
+        public BattleResult Attack(Board b, Player p, AttackPlan plan)
         {
             // Basic tests
-            if (attacker == null || defender == null) return false;
-            if (attacker.Owner == null) return false;
-            if (attacker.Strength <= 1) return false;
-            if (!attacker.Neighbors.Contains(defender)) return false;
-            if (attacker.Owner == defender.Owner) return false;
+            if (plan.Attacker == null
+                || plan.Defender == null
+                || plan.Attacker.Owner == null
+                || plan.Attacker.Owner != p
+                || plan.Attacker.Strength <= 1
+                || !plan.Attacker.Neighbors.Contains(plan.Defender)
+                || plan.Attacker.Owner == plan.Defender.Owner)
+            {
+                return BattleResult.INVALID;
+            }
 
             // Always win
-            defender.Owner.Zones.Remove(defender);
-            defender.Owner = attacker.Owner;
-            attacker.Owner.Zones.Add(defender);
-            defender.Strength = attacker.Strength - 1;
-            attacker.Strength = 1;
-            return true;
+            return new BattleResult()
+            {
+                AttackWasInvalid = false,
+                Plan = plan,
+                AttackSucceeded = true,
+                UpdateBoardTask = new System.Threading.Tasks.Task(() =>
+                {
+                    if (plan.Defender.Owner != null)
+                    {
+                        plan.Defender.Owner.Zones.Remove(plan.Defender);
+                        if (plan.Defender.Owner.Zones.Count == 0)
+                        {
+                            plan.Defender.Owner.IsDead = true;
+                        }
+                    }
+                    plan.Defender.Owner = plan.Attacker.Owner;
+                    plan.Attacker.Owner.Zones.Add(plan.Defender);
+                    plan.Defender.Strength = plan.Attacker.Strength - 1;
+                    plan.Attacker.Strength = 1;
+                })
+            };
         }
     }
 }

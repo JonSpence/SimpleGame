@@ -11,7 +11,7 @@ namespace GameLib
     public class Board
     {
         /// <summary>
-        /// Fixed settings
+        /// Settings fixed on startup
         /// </summary>
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -19,12 +19,13 @@ namespace GameLib
         public Random Random { get; private set; }
 
         /// <summary>
-        /// Mutable settings
+        /// Data that changes over the course of the game
         /// </summary>
         public List<Zone> Zones { get; set;  }
         public List<Player> Players { get; set; }
         public IBattleRule BattleRule { get; set; }
         public IReinforcementRule ReinforcementRule { get; set; }
+        public int CurrentTurn { get; set; }
 
         public static Color[] COLOR_LIST = new Color[] { Color.ForestGreen, Color.CornflowerBlue, Color.Red, Color.DarkMagenta, Color.MediumPurple, Color.DarkOrange, Color.RosyBrown, Color.DarkOrchid };
 
@@ -45,12 +46,16 @@ namespace GameLib
             b.ReinforcementRule = new RandomBorder();
             b.Random = new Random();
 
+            // Random start player
+            b.CurrentTurn = b.Random.Next(players);
+
             // Setup players
             for (int i = 0; i < Math.Min(players, COLOR_LIST.Length); i++)
             {
                 Player p = new Player()
                 {
                     Color = COLOR_LIST[i],
+                    Name = COLOR_LIST[i].ToString(),
                     Number = i,
                     Zones = new List<Zone>()
                 };
@@ -141,6 +146,30 @@ namespace GameLib
 
             // This is your largest contiguous zone
             return largestArea;
+        }
+
+        /// <summary>
+        /// End the current turn
+        /// </summary>
+        public void EndTurn()
+        {
+            // Which player was playing?
+            var p = Players[CurrentTurn];
+
+            // Figure out reinforcements for this player
+            int reinforcements = GetLargestArea(p).Count;
+            ReinforcementRule.Reinforce(this, p, reinforcements);
+
+            // Advance to next non-dead player
+            for (int i = 0; i < NumPlayers; i++)
+            {
+                CurrentTurn++;
+                if (CurrentTurn >= Players.Count)
+                {
+                    CurrentTurn = 0;
+                }
+                if (!Players[CurrentTurn].IsDead) break;
+            }
         }
     }
 }

@@ -5,8 +5,8 @@ using System.Text;
 
 namespace GameLib.Interfaces
 {
-    public interface IBattleRule
+    public interface IBot
     {
-        BattleResult Attack(Board b, Player p, AttackPlan plan);
+        AttackPlan PickNextAttack(Board b, Player p);
     }
 }
