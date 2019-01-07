@@ -10,18 +10,14 @@ namespace GameLib.Rules
     {
         public void Reinforce(Board b, Player p, int reinforcements)
         {
+            // First try reinforcing borders
             var area = b.GetLargestArea(p);
-
-            // Find border zones within this area
             var borders = (from z in area where z.BordersAnEnemy() select z).ToList();
-            if (borders.Count == 0) borders = p.Zones;
+            int remaining = b.TryReinforce(borders, reinforcements);
 
-            // Now add reinforcements
-            for (int i = 0; i < reinforcements; i++)
-            {
-                var toReinforce = b.Random.Next(borders.Count);
-                var z = borders[toReinforce];
-                z.Strength++;
+            // If there's more, try largest area
+            if (remaining > 0) {
+                b.TryReinforce(area, remaining);
             }
         }
     }

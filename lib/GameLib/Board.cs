@@ -24,7 +24,7 @@ namespace GameLib
         /// <summary>
         /// Data that changes over the course of the game
         /// </summary>
-        public List<Zone> Zones { get; set;  }
+        public List<Zone> Zones { get; set; }
         public List<Player> Players { get; set; }
         public IBattleRule BattleRule { get; set; }
         public IReinforcementRule ReinforcementRule { get; set; }
@@ -74,11 +74,13 @@ namespace GameLib
             {
                 for (int j = 0; j < height; j++)
                 {
+                    // Zone size?
                     Zone z = new Zone()
                     {
                         X = i,
                         Y = j,
                         Strength = 1,
+                        MaxStrength = b.Random.Next(7, 9),
                         Owner = null
                     };
                     b.Zones.Add(z);
@@ -235,6 +237,34 @@ namespace GameLib
         public bool StillPlaying()
         {
             return (from p in Players where p.IsDead == false select 1).Sum() > 1;
+        }
+
+        /// <summary>
+        /// Try to reinforce zones in this list until full.  Returns number of remaining reinforcements
+        /// </summary>
+        /// <returns>Number of remaining reinforcements that could not be placed<</returns>
+        /// <param name="zones">Zones.</param>
+        /// <param name="numReinforcements">Number to try to place.</param>
+        public int TryReinforce(List<Zone> zones, int numReinforcements)
+        {
+            List<Zone> remaining = new List<Zone>(zones);
+            while (numReinforcements > 0 && remaining.Count > 0)
+            {
+                var toReinforce = Random.Next(remaining.Count);
+                var z = remaining[toReinforce];
+                if (z.Strength < z.MaxStrength)
+                {
+                    z.Strength++;
+                    numReinforcements--;
+                }
+                else
+                {
+                    remaining.Remove(z);
+                }
+            }
+
+            // The number that could not be placed
+            return numReinforcements;
         }
     }
 }

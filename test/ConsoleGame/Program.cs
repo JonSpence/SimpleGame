@@ -15,9 +15,11 @@ namespace ConsoleGame
             Board b = Board.NewBoard(10, 10, 6);
             while (b.StillPlaying())
             {
-                TakeBotTurn(b);
                 Console.WriteLine(PrintStatistics(b));
+                TakeBotTurn(b);
             }
+            Console.WriteLine("Final: ");
+            Console.WriteLine(PrintStatistics(b));
         }
 
         private static string PrintStatistics(Board b)

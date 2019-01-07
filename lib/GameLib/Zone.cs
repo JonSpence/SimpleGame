@@ -10,6 +10,7 @@ namespace GameLib
         public int Y { get; set; }
         public Player Owner { get; set; }
         public int Strength { get; set; }
+        public int MaxStrength { get; set; }
         public List<Zone> Neighbors { get; set; }
 
 
