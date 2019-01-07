@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using GameLib;
+using GameLib.Bots;
 
 namespace ConsoleGame
 {
@@ -13,6 +14,7 @@ namespace ConsoleGame
 
             // Run a quick simulation
             Board b = Board.NewBoard(10, 10, 6);
+            b.Players[0].Bot = new CautiousBot();
             while (b.StillPlaying())
             {
                 Console.WriteLine(PrintStatistics(b));
