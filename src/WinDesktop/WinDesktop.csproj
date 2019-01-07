@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameLib\GameLib.csproj">
-      <Project>{f63519c8-b8a5-4899-a0c2-6ae4ff170e16}</Project>
+      <Project>{DCC74EF3-D322-40A1-A96D-50EC5C7DCCAD}</Project>
       <Name>GameLib</Name>
     </ProjectReference>
   </ItemGroup>
