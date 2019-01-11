@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GameLib;
 using GameLib.Bots;
+using GameLib.Interfaces;
 using GameLib.Rules;
 
 namespace ConsoleGame
@@ -13,27 +15,35 @@ namespace ConsoleGame
         {
             Console.WriteLine("Hello World!");
 
-            int Wins = 0;
-            for (int i = 0; i < 1000; i++)
-            {
-                Wins += RunGame();
+            // What bots should we test?
+            List<IBot> list = new List<IBot>();
+            list.Add(new CautiousBot());
+            list.Add(new BorderShrinkBot());
+            list.Add(new RandomBot());
+            list.Add(new TurtleBot());
+            list.Add(new ExpandoBot());
+
+            // Test eachon 1000 games at random
+            foreach (var bot in list) {
+                int Wins = 0;
+                for (int i = 0; i < 1000; i++)
+                {
+                    Wins += RunGame(bot);
+                }
+                Console.WriteLine($"Total wins by {bot.GetType().ToString()}: {Wins}");
             }
-            Console.WriteLine("Total wins by CautiousBot: " + Wins.ToString());
         }
 
-        public static int RunGame()
+        public static int RunGame(IBot to_test)
         { 
             // Run a quick simulation
-            Board b = Board.NewBoard(5, 5, 3);
+            Board b = Board.NewBoard(5, 5, 6);
             b.BattleRule = new RankedDice();
-            b.Players[0].Bot = new CautiousBot();
+            b.Players[0].Bot = to_test;
             while (b.StillPlaying())
             {
-                //Console.WriteLine(PrintStatistics(b));
                 TakeBotTurn(b);
             }
-            //Console.WriteLine("Final: ");
-            //Console.WriteLine(PrintStatistics(b));
             if (!b.Players[0].IsDead) return 1;
             return 0;
         }
