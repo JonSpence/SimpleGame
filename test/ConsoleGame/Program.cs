@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using GameLib;
 using GameLib.Bots;
+using GameLib.Rules;
 
 namespace ConsoleGame
 {
@@ -12,16 +13,29 @@ namespace ConsoleGame
         {
             Console.WriteLine("Hello World!");
 
+            int Wins = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                Wins += RunGame();
+            }
+            Console.WriteLine("Total wins by CautiousBot: " + Wins.ToString());
+        }
+
+        public static int RunGame()
+        { 
             // Run a quick simulation
-            Board b = Board.NewBoard(10, 10, 6);
+            Board b = Board.NewBoard(5, 5, 3);
+            b.BattleRule = new RankedDice();
             b.Players[0].Bot = new CautiousBot();
             while (b.StillPlaying())
             {
-                Console.WriteLine(PrintStatistics(b));
+                //Console.WriteLine(PrintStatistics(b));
                 TakeBotTurn(b);
             }
-            Console.WriteLine("Final: ");
-            Console.WriteLine(PrintStatistics(b));
+            //Console.WriteLine("Final: ");
+            //Console.WriteLine(PrintStatistics(b));
+            if (!b.Players[0].IsDead) return 1;
+            return 0;
         }
 
         private static string PrintStatistics(Board b)

@@ -16,12 +16,12 @@ namespace GameLib.Rules
                 return BattleResult.INVALID;
             }
 
-            // Roll dice based on strength
-            int attacker_roll = b.Roll(plan.Attacker.Strength, 6);
+            // Roll dice based on strength - note that one unit must stay home for attacker
+            int attacker_roll = b.Roll(plan.Attacker.Strength - 1, 6);
             int defender_roll = b.Roll(plan.Defender.Strength, 6);
             bool wins = attacker_roll > defender_roll;
 
-            // Always win
+            // Handle the best roll
             return new BattleResult()
             {
                 AttackWasInvalid = false,

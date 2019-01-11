@@ -15,8 +15,8 @@ namespace GameLib.Bots
             // Sort attacks by strength
             return (from plan 
                 in plans 
-                where plan.Attacker.Strength >= plan.Defender.Strength - 1
-                orderby plan.Attacker.Strength - plan.Defender.Strength descending
+                where (plan.Attacker.Strength >= plan.Defender.Strength - 1) || (plan.Attacker.Strength > 5)
+                    orderby plan.Attacker.Strength - plan.Defender.Strength descending
                 select plan).FirstOrDefault();
         }
     }

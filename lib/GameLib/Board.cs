@@ -216,6 +216,24 @@ namespace GameLib
         }
 
         /// <summary>
+        /// Roll dice, and return all results
+        /// </summary>
+        /// <returns>List of results of each roll</returns>
+        /// <param name="NumDice"></param>
+        /// <param name="DieFaces"></param>
+        public List<int> MultiRoll(int NumDice, int DieFaces)
+        {
+            var rolls = new List<int>();
+            for (int i = 0; i < NumDice; i++)
+            {
+                rolls.Add(Random.Next(DieFaces) + 1);
+            }
+            return rolls;
+        }
+
+
+
+        /// <summary>
         /// Returns true if this attack is invalid
         /// </summary>
         /// <param name="plan"></param>
