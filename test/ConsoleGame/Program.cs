@@ -23,22 +23,61 @@ namespace ConsoleGame
             list.Add(new TurtleBot());
             list.Add(new ExpandoBot());
 
-            // Test eachon 1000 games at random
+            // Test all bots in a FFA battle against each other
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+            for (int i = 0; i < 1000; i++)
+            {
+                string winner = RunFFA(list); 
+                if (!dict.ContainsKey(winner))
+                {
+                    dict[winner] = 1;
+                }
+                else
+                {
+                    dict[winner] = dict[winner] + 1;
+                }
+            }
+
+            // Print FFA results
+            foreach (var kvp in dict)
+            {
+                Console.WriteLine($"FFA - {kvp.Key}: {kvp.Value}");
+            }
+
+            // Test each on 1000 games against 5 other random bots
             foreach (var bot in list) {
                 int Wins = 0;
                 for (int i = 0; i < 1000; i++)
                 {
-                    Wins += RunGame(bot);
+                    Wins += RunRandomBotsAgainstTarget(bot);
                 }
                 Console.WriteLine($"Total wins by {bot.GetType().ToString()}: {Wins}");
             }
         }
 
-        public static int RunGame(IBot to_test)
+        private static string RunFFA(List<IBot> list)
+        {
+            // Run a quick simulation
+            Board b = Board.NewBoard(5, 5, list.Count);
+            b.BattleRule = new RankedDice();
+            //b.ReinforcementRule = new RandomAnywhere();
+            for (int i = 0; i < list.Count; i++)
+            {
+                b.Players[i].Bot = list[i];
+            }
+            while (b.StillPlaying())
+            {
+                TakeBotTurn(b);
+            }
+            return (from p in b.Players where !p.IsDead select p.Bot.GetType().ToString()).FirstOrDefault();
+        }
+
+        public static int RunRandomBotsAgainstTarget(IBot to_test)
         { 
             // Run a quick simulation
             Board b = Board.NewBoard(5, 5, 6);
             b.BattleRule = new RankedDice();
+            //b.ReinforcementRule = new RandomAnywhere();
             b.Players[0].Bot = to_test;
             while (b.StillPlaying())
             {
