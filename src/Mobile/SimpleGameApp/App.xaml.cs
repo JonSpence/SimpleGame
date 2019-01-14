@@ -11,7 +11,7 @@ namespace SimpleGameApp
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new NewGame();//MainPage();
         }
 
         protected override void OnStart()

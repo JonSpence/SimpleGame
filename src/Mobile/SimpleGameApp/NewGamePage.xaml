@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="SimpleGameApp.NewGame">
+    <StackLayout>
+        <Label Text="New Game" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Label Text="Dimensions" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker x:Name="ddlDimensions">
+            <Picker.ItemsSource>
+            <x:Array Type="{x:Type x:String}">
+              <x:String>Small</x:String>
+              <x:String>Medium</x:String>
+              <x:String>Large</x:String>
+              <x:String>Epic</x:String>
+            </x:Array>
+          </Picker.ItemsSource>
+        </Picker>
+        <Label Text="Battle Style" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker x:Name="ddlDiceRule" SelectedIndex="0">
+            <Picker.ItemsSource>
+            <x:Array Type="{x:Type x:String}">
+              <x:String>AlwaysWin</x:String>
+              <x:String>HighestRoll</x:String>
+              <x:String>RankedDice</x:String>
+            </x:Array>
+          </Picker.ItemsSource>
+        </Picker>
+        <Label Text="Reinforcements" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker x:Name="ddlReinforcements" SelectedIndex="0">
+            <Picker.ItemsSource>
+            <x:Array Type="{x:Type x:String}">
+              <x:String>Random</x:String>
+              <x:String>Largest Area</x:String>
+              <x:String>Border</x:String>
+            </x:Array>
+          </Picker.ItemsSource>
+        </Picker>
+        <Button HorizontalOptions="Fill" Text="Start Game" Clicked="StartGame_Clicked" />
+    </StackLayout>
+</ContentPage>

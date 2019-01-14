@@ -21,16 +21,54 @@ namespace SimpleGameApp
         public BattleResult CurrentAttack { get; set; }
         public DateTime? StatusTime { get; set; }
 
-        public MainPage()
+        public MainPage(Board game)
         {
             InitializeComponent();
+            NavigationPage.SetHasNavigationBar(this, false);
 
             // Construct new board
-            GameBoard = Board.NewBoard(5, 7, 3);
-            GameBoard.BattleRule = new RankedDice();
+            GameBoard = game; 
             BuildBoard();
             RedrawBoard();
+
+            // Start timer for automatic updates
+            Xamarin.Forms.Device.StartTimer(TimeSpan.FromMilliseconds(250), TimerFunc);
         }
+
+        /// <summary>
+        /// If we're playing a bot, take one turn every 250 ms
+        /// </summary>
+        bool TimerFunc()
+        {
+            try
+            {
+                // Clear all status
+                ActionMessage = "";
+                CurrentAttack = null;
+
+                // If the current player is a bot, do another attack
+                if (!GameBoard.CurrentPlayer.IsHuman)
+                {
+                    var plan = GameBoard.CurrentPlayer.Bot.PickNextAttack(GameBoard, GameBoard.CurrentPlayer);
+                    if (plan == null)
+                    {
+                        GameBoard.EndTurn();
+                        StatusTime = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        ExecuteAttackPlan(plan);
+                    }
+                    RedrawBoard();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+            return true;
+        }
+
 
         private void BuildBoard()
         {
@@ -39,8 +77,8 @@ namespace SimpleGameApp
             var board_width = this.grdBoard.Width;
 
             // Figure out cell height and width
-            var cellHeight = board_height / GameBoard.Height;
-            var cellWidth = board_width / GameBoard.Width;
+            var cellHeight = Math.Max(board_height / GameBoard.Height, 20);
+            var cellWidth = Math.Max(board_width / GameBoard.Width, 30);
 
             // Tell the grid how we're doing things
             grdBoard.ColumnDefinitions.Clear();
@@ -64,7 +102,7 @@ namespace SimpleGameApp
                     Margin = new Thickness(0, 0, 0, 0),
                     BackgroundColor = Color.DarkGray,
                     TextColor = Color.FromRgb(0, 0, 0),
-                    FontSize = 10.0f,
+                    FontSize = 16.0f,
                     Padding = new Thickness(0, 0, 0, 0),
                 };
                 zb.Clicked += ZoneButton_Clicked;
@@ -78,6 +116,8 @@ namespace SimpleGameApp
 
         void ZoneButton_Clicked(object sender, EventArgs e)
         {
+            if (!GameBoard.CurrentPlayer.IsHuman) return;
+
             if (sender is Button button)
             {
                 var zone = ButtonToZone[button];
@@ -120,6 +160,16 @@ namespace SimpleGameApp
             else
             {
                 result.UpdateBoardTask.RunSynchronously();
+
+                // Is it game over?
+                if (!GameBoard.StillPlaying())
+                {
+                    ActionMessage = "Winner: " + GameBoard.Winner.Color.ToString();
+                    var pg = new GameOverPage(GameBoard);
+                    Navigation.PushModalAsync(pg);
+                    return;
+                }
+
                 ActionMessage = $"Battle Result: {result.Plan.Attacker.X + 1}/{result.Plan.Attacker.Y + 1} vs {result.Plan.Defender.X + 1}/{result.Plan.Defender.Y + 1}:";
                 if (result.AttackSucceeded)
                 {

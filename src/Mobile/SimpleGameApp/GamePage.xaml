@@ -5,8 +5,10 @@
         <Label x:Name="lblStatus" Text="Status" HorizontalOptions="Center" VerticalOptions="Center" />
         <Label x:Name="lblTurn" Text="Turn" HorizontalOptions="Center" VerticalOptions="Center" />
         <Label x:Name="lblAction" Text="Action" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Grid x:Name="grdBoard" BackgroundColor="Silver" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Padding="0,0,0,0">
+        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+        <Grid x:Name="grdBoard" BackgroundColor="Silver" Padding="0,0,0,0">
         </Grid>
+        </ScrollView>
         <StackLayout Orientation="Horizontal" FlowDirection="RightToLeft">
             <Button Text="End Turn" Clicked="EndTurn_Clicked" />
         </StackLayout>

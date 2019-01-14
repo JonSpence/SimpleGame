@@ -130,6 +130,19 @@ namespace GameLib
         }
 
         /// <summary>
+        /// Winner of the game
+        /// </summary>
+        /// <value>The winner.</value>
+        public Player Winner 
+        {
+            get
+            {
+                if (StillPlaying()) return null;
+                return (from p in Players where p.IsDead == false select p).FirstOrDefault();
+            }
+        }
+
+        /// <summary>
         /// Figure out the largest contiguous area owned by a player
         /// </summary>
         /// <param name="p"></param>
