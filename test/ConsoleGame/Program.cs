@@ -87,21 +87,6 @@ namespace ConsoleGame
             return 0;
         }
 
-        private static string PrintStatistics(Board b)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("Round ");
-            sb.Append(b.Round);
-            sb.Append(": ");
-            foreach (var p in b.Players)
-            {
-                sb.Append(p.Color.Name);
-                sb.Append("-");
-                sb.Append(((from z in p.Zones select z.Strength).Sum()).ToString());
-                sb.Append("   ");
-            }
-            return sb.ToString();
-        }
 
         private static void TakeBotTurn(Board b)
         {

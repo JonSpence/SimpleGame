@@ -314,5 +314,22 @@ namespace GameLib
             }
             return plans;
         }
+
+        public string GameStatus()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Round ");
+            sb.Append(Round);
+            sb.Append(": ");
+            foreach (var p in Players)
+            {
+                sb.Append(p.Color.Name);
+                sb.Append("-");
+                sb.Append(((from z in p.Zones select z.Strength).Sum()).ToString());
+                sb.Append("   ");
+            }
+            return sb.ToString();
+        }
+
     }
 }
