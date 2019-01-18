@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="SimpleGameApp.GameOverPage">
-    <Label x:Name="lblGameOver" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Text="Game Over"/>
-    <Button x:Name="btnNewGame" Text="New Game" Clicked="Handle_Clicked" />
+    <StackLayout Orientation="Vertical">
+        <Label x:Name="lblGameOver" Margin="20,20,20,20" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Text="Game Over"/>
+        <Button x:Name="btnNewGame" Margin="20,20,20,20" Text="New Game" Clicked="Handle_Clicked" />
+    </StackLayout>
 </ContentPage>

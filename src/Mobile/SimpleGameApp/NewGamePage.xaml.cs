@@ -17,6 +17,7 @@ namespace SimpleGameApp
             ddlDiceRule.SelectedItem = ddlDiceRule.Items[0];
             ddlDimensions.SelectedItem = ddlDimensions.Items[0];
             ddlReinforcements.SelectedItem = ddlReinforcements.Items[0];
+            ddlDifficulty.SelectedItem = ddlDifficulty.Items[0];
         }
 
         void StartGame_Clicked(object sender, System.EventArgs e)

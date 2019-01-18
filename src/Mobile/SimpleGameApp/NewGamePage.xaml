@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="SimpleGameApp.NewGame">
     <StackLayout>
+        <Label Text="Simple Dice Game" HorizontalOptions="Center" VerticalOptions="Center" Margin="50" />
         <Label Text="New Game" HorizontalOptions="Center" VerticalOptions="Center" />
         <Label Text="Dimensions" HorizontalOptions="Center" VerticalOptions="Center" />
         <Picker x:Name="ddlDimensions">
@@ -30,6 +31,16 @@
               <x:String>Random</x:String>
               <x:String>Largest Area</x:String>
               <x:String>Border</x:String>
+            </x:Array>
+          </Picker.ItemsSource>
+        </Picker>
+        <Label Text="Difficulty" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker x:Name="ddlDifficulty" SelectedIndex="0">
+            <Picker.ItemsSource>
+            <x:Array Type="{x:Type x:String}">
+              <x:String>Vicious</x:String>
+              <x:String>Worrying</x:String>
+              <x:String>Insignificant</x:String>
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
