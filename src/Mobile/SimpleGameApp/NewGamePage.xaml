@@ -44,6 +44,8 @@
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
+        <Label Text="Auto Play" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Switch IsToggled="true" x:Name="cbxAutoPlay" /> 
         <Button HorizontalOptions="Fill" Text="Start Game" Clicked="StartGame_Clicked" />
     </StackLayout>
 </ContentPage>

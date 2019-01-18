@@ -195,7 +195,7 @@ namespace SimpleGameApp
             // Set status messages
             lblTurn.Text = $"Turn: Player {GameBoard.Players[GameBoard.CurrentTurn].Name}";
             lblStatus.Text = GameBoard.GameStatus();
-            lblAction.Text = ActionMessage;
+            lblAction.Text = " " + ActionMessage;
 
             // Draw each zone
             foreach (var z in GameBoard.Zones)
