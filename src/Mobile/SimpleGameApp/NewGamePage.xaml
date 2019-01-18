@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="SimpleGameApp.NewGame">
-    <StackLayout>
-        <Label Text="Simple Dice Game" HorizontalOptions="Center" VerticalOptions="Center" Margin="50" />
-        <Label Text="New Game" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Label Text="Dimensions" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Picker x:Name="ddlDimensions">
+    <Grid>
+        <Label Grid.Row="0" Grid.ColumnSpan="2" Text="Simple Dice Game" HorizontalOptions="Center" VerticalOptions="Center" Margin="50" />
+        <Label Grid.Row="1" Grid.ColumnSpan="2" Text="New Game" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Label Grid.Row="2" Grid.Column="0" Text="Dimensions" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker Grid.Row="2" Grid.Column="1" x:Name="ddlDimensions">
             <Picker.ItemsSource>
             <x:Array Type="{x:Type x:String}">
               <x:String>Small</x:String>
@@ -14,8 +14,8 @@
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
-        <Label Text="Battle Style" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Picker x:Name="ddlDiceRule" SelectedIndex="0">
+        <Label Grid.Row="3" Grid.Column="0" Text="Battle Style" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker Grid.Row="3" Grid.Column="1" x:Name="ddlDiceRule" SelectedIndex="0">
             <Picker.ItemsSource>
             <x:Array Type="{x:Type x:String}">
               <x:String>AlwaysWin</x:String>
@@ -24,8 +24,8 @@
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
-        <Label Text="Reinforcements" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Picker x:Name="ddlReinforcements" SelectedIndex="0">
+        <Label Grid.Row="4" Grid.Column="0" Text="Reinforcements" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker Grid.Row="4" Grid.Column="1" x:Name="ddlReinforcements" SelectedIndex="0">
             <Picker.ItemsSource>
             <x:Array Type="{x:Type x:String}">
               <x:String>Random</x:String>
@@ -34,8 +34,8 @@
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
-        <Label Text="Difficulty" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Picker x:Name="ddlDifficulty" SelectedIndex="0">
+        <Label Grid.Row="5" Grid.Column="0" Text="Difficulty" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Picker Grid.Row="5" Grid.Column="1" x:Name="ddlDifficulty" SelectedIndex="0">
             <Picker.ItemsSource>
             <x:Array Type="{x:Type x:String}">
               <x:String>Vicious</x:String>
@@ -44,8 +44,8 @@
             </x:Array>
           </Picker.ItemsSource>
         </Picker>
-        <Label Text="Auto Play" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Switch IsToggled="true" x:Name="cbxAutoPlay" /> 
-        <Button HorizontalOptions="Fill" Text="Start Game" Clicked="StartGame_Clicked" />
-    </StackLayout>
+        <Label Grid.Row="6" Grid.Column="0" Text="Auto Play" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Switch Grid.Row="6" Grid.Column="1" IsToggled="true" x:Name="cbxAutoPlay" /> 
+        <Button Grid.Row="7" Grid.ColumnSpan="2" HorizontalOptions="Fill" Text="Start Game" Clicked="StartGame_Clicked" />
+    </Grid>
 </ContentPage>

@@ -197,6 +197,9 @@ namespace SimpleGameApp
             lblStatus.Text = GameBoard.GameStatus();
             lblAction.Text = " " + ActionMessage;
 
+            // Hide end turn button if player is a bot
+            btnEndTurn.IsVisible = GameBoard.CurrentPlayer.IsHuman;
+
             // Draw each zone
             foreach (var z in GameBoard.Zones)
             {

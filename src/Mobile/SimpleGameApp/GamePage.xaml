@@ -11,7 +11,7 @@
         </Grid>
         </ScrollView>
         <StackLayout Orientation="Horizontal" FlowDirection="RightToLeft">
-            <Button Text="End Turn" Clicked="EndTurn_Clicked" />
+            <Button x:Name="btnEndTurn" Text="End Turn" Clicked="EndTurn_Clicked" />
         </StackLayout>
     </StackLayout>
 </ContentPage>
