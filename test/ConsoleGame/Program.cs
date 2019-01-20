@@ -21,6 +21,7 @@ namespace ConsoleGame
             list.Add(new BorderShrinkBot());
             list.Add(new RandomBot());
             list.Add(new TurtleBot());
+            list.Add(new ThisIsTheBotIWasHiredToCreate());
             list.Add(new ExpandoBot());
 
             // Test all bots in a FFA battle against each other

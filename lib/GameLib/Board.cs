@@ -80,7 +80,7 @@ namespace GameLib
                         X = i,
                         Y = j,
                         Strength = 1,
-                        MaxStrength = b.Random.Next(7, 9),
+                        MaxStrength = 8,//b.Random.Next(7, 9),
                         Owner = null
                     };
                     b.Zones.Add(z);
@@ -109,7 +109,7 @@ namespace GameLib
 
             // Randomly reinforce zones
             var rule = new RandomAnywhere();
-            int reinforcements = (int)(width * height * 3 / players);
+            int reinforcements = (int)((width * height * 3) / players);
             for (int i = 0; i < players; i++)
             {
                 rule.Reinforce(b, b.Players[i], reinforcements);
@@ -271,9 +271,9 @@ namespace GameLib
         }
 
         /// <summary>
-        /// Try to reinforce zones in this list until full.  Returns number of remaining reinforcements
+        /// Try to reinforce zones in this list until full.  Returns number of remaining reinforcements that could not be placed.
         /// </summary>
-        /// <returns>Number of remaining reinforcements that could not be placed<</returns>
+        /// <returns>Number of remaining reinforcements that could not be placed</returns>
         /// <param name="zones">Zones.</param>
         /// <param name="numReinforcements">Number to try to place.</param>
         public int TryReinforce(List<Zone> zones, int numReinforcements)
