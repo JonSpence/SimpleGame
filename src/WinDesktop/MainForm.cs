@@ -36,7 +36,8 @@ namespace WinDesktop
             GameBoard = Board.NewBoard(10, 10, 6);
             GameBoard.BattleRule = new RankedDice();
             GameBoard.ReinforcementRule = new RandomBorder();
-            GameBoard.Players[0].Bot = new BorderShrinkBot();
+            GameBoard.Players[0].IsHuman = true;
+            GameBoard.Players[1].Bot = new BorderShrinkBot();
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
@@ -220,7 +221,7 @@ namespace WinDesktop
         {
             if (StatusTime != null) {
                 var ts = DateTime.UtcNow - StatusTime.Value;
-                if (ts.TotalMilliseconds > 500)
+                if (ts.TotalMilliseconds > 250)
                 {
                     // Was there a current attack?
                     if (CurrentAttack != null)
