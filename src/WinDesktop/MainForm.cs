@@ -1,6 +1,7 @@
 ﻿using GameLib;
 using GameLib.Bots;
 using GameLib.Messages;
+using GameLib.Rules;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,6 +34,9 @@ namespace WinDesktop
 
             // Basic setup
             GameBoard = Board.NewBoard(10, 10, 6);
+            GameBoard.BattleRule = new RankedDice();
+            GameBoard.ReinforcementRule = new RandomBorder();
+            GameBoard.Players[0].Bot = new BorderShrinkBot();
         }
 
         private void MainForm_Paint(object sender, PaintEventArgs e)
@@ -216,7 +220,7 @@ namespace WinDesktop
         {
             if (StatusTime != null) {
                 var ts = DateTime.UtcNow - StatusTime.Value;
-                if (ts.TotalMilliseconds > 500)
+                if (ts.TotalMilliseconds > 250)
                 {
                     // Was there a current attack?
                     if (CurrentAttack != null)
