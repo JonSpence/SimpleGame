@@ -32,7 +32,7 @@ namespace GameLib.Rules
                     {
                         defender_losses++;
                     }
-                    else
+                    else if (attacker_rolls[i] < defender_rolls[i])
                     {
                         attacker_losses++;
                     }
