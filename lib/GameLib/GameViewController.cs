@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
-namespace SimpleGameApp
+namespace GameLib
 {
     public class GameViewController
     {
@@ -20,6 +20,7 @@ namespace SimpleGameApp
         public BattleResult CurrentAttack { get; set; }
         public DateTime? StatusTime { get; set; }
         Dictionary<SKRect, Zone> HitMap { get; set; }
+        public SKRect? EndTurnRect { get; set; }
 
         public GameAttackResult ExecuteAttackPlan(AttackPlan plan)
         {
@@ -39,7 +40,6 @@ namespace SimpleGameApp
             if (!GameBoard.StillPlaying())
             {
                 ActionMessage = "Winner: " + GameBoard.Winner.Color.ToString();
-                var pg = new GameOverPage(GameBoard);
                 return GameAttackResult.GameOver;
             }
 
@@ -55,21 +55,23 @@ namespace SimpleGameApp
             }
             StatusTime = DateTime.UtcNow;
             CurrentAttack = result;
+
+            // Is the game over?
+            if (!GameBoard.StillPlaying()) return GameAttackResult.GameOver;
             return GameAttackResult.Normal;
         }
 
-        public void Paint(object sender, SKPaintSurfaceEventArgs e)
+        public void Paint(object sender, SKCanvas canvas)
         {
             // Clear canvas first
-            var canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.White);
-            e.Surface.Canvas.GetDeviceClipBounds(out var bounds);
+            canvas.GetDeviceClipBounds(out var bounds);
 
             // Start building a hit map
             Dictionary<SKRect, Zone> dict = new Dictionary<SKRect, Zone>();
 
             // Line height: We need 5 lines for status, plus game board height
-            float cellHeight = (bounds.Height / (GameBoard.Height + 5));
+            float cellHeight = (bounds.Height / (GameBoard.Height + 3));
 
             // Scale font to size of screen
             var textPaint = new SKPaint
@@ -80,7 +82,7 @@ namespace SimpleGameApp
             };
 
             // Reserve room for status information
-            var status_height = cellHeight * 5;
+            var status_height = cellHeight * 1.5f;
             var board_height = bounds.Height - status_height;
             var board_width = bounds.Width;
 
@@ -88,12 +90,20 @@ namespace SimpleGameApp
             var player_width = (bounds.Width / (GameBoard.Players.Count));
             var padding = cellHeight * 0.1f;
             SKRect player_box = new SKRect();
-            player_box.Top = padding;
-            player_box.Bottom = cellHeight - padding;
+            player_box.Top = padding + padding;
+            player_box.Bottom = cellHeight - padding - padding;
             for (int i = 0; i < GameBoard.Players.Count; i++)
             {
-                player_box.Left = (player_width * i) + padding;
-                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top);
+                var xpos = player_width * i;
+
+                // Highlight active player
+                if (GameBoard.CurrentTurn == i) {
+                    canvas.DrawRect(new SKRect(xpos, 0, xpos + player_width, cellHeight), new SKPaint() { Color = SKColors.Gray, Style = SKPaintStyle.Fill });
+                }
+
+                // Adjust dimensions of box and draw their color indicator
+                player_box.Left = xpos + padding + padding;
+                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - padding;
                 SKPaint p = new SKPaint()
                 {
                     Color = ColorFrom(GameBoard.Players[i].Color),
@@ -108,13 +118,6 @@ namespace SimpleGameApp
                 };
                 canvas.DrawRect(player_box, border);
                 canvas.DrawText(GameBoard.Players[i].CurrentStrength.ToString(), (player_box.Right + (padding * 2)), player_box.Bottom, textPaint);
-            }
-
-            // Draw status
-            DrawCenteredText(canvas, $"Round {GameBoard.Round}: {GameBoard.Players[GameBoard.CurrentTurn].Name}", 0, cellHeight * 2, bounds.Width, cellHeight, textPaint);
-            if (!String.IsNullOrEmpty(ActionMessage))
-            {
-                DrawCenteredText(canvas, ActionMessage, 0, cellHeight * 3, bounds.Width, cellHeight, textPaint);
             }
 
             // Figure out cell height and width
@@ -173,16 +176,57 @@ namespace SimpleGameApp
                 dict[r] = z;
             }
 
+            // Do we need to draw the "End Turn" button?
+            EndTurnRect = null;
+            if (GameBoard.CurrentPlayer.IsHuman)
+            {
+                var p4 = padding;
+                EndTurnRect = new SKRect(0 + p4, bounds.Bottom - (cellHeight * 1.5f) + p4, bounds.Right - p4, bounds.Bottom - p4);
+                SKRoundRect rr = new SKRoundRect(EndTurnRect.Value, padding, padding);
+                canvas.DrawRoundRect(rr, new SKPaint() { Style = SKPaintStyle.Fill, Color = SKColors.DarkGray });
+                canvas.DrawRoundRect(rr, new SKPaint() { Style = SKPaintStyle.Stroke, Color = SKColors.LightGray });
+                DrawCenteredText(canvas, "END TURN", EndTurnRect.Value, textPaint);
+            }
+
             // Update viewmap
             HitMap = dict;
         }
 
-        public GameAttackResult HandleTouch(object sender, SKTouchEventArgs e)
+        public GameAttackResult TakeBotAction()
+        {
+            // Can't take bot actions for a human
+            if (GameBoard.CurrentPlayer.IsHuman) return GameAttackResult.Invalid;
+
+            // Okay, we're a bot, let's pick an attack
+            var plan = GameBoard.CurrentPlayer.Bot.PickNextAttack(GameBoard, GameBoard.CurrentPlayer);
+
+            // No attack means our turn is over
+            if (plan != null)
+            {
+                return ExecuteAttackPlan(plan);
+            }
+
+            // No attack means turn is over
+            GameBoard.EndTurn();
+            return GameAttackResult.Normal;
+        }
+
+        public GameAttackResult HandleTouch(object sender, SKPoint location)
         {
             if (!GameBoard.CurrentPlayer.IsHuman) return GameAttackResult.Invalid;
 
+            // Was this an end turn touch?
+            if (EndTurnRect.HasValue)
+            {
+                if (EndTurnRect.Value.Contains(location))
+                {
+                    GameBoard.EndTurn();
+                    return GameAttackResult.Normal;
+                }
+            }
+
             // Figure out what zone was touched
-            var zone = HitTestZone(e.Location);
+            var zone = HitTestZone(location);
             if (zone == null) return GameAttackResult.Invalid;
 
             // Set an attacker

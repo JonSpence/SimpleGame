@@ -35,7 +35,7 @@
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 40;
+            this.timer1.Interval = 250;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // MainForm
@@ -45,9 +45,8 @@
             this.ClientSize = new System.Drawing.Size(800, 917);
             this.Name = "MainForm";
             this.Text = "MainForm";
-            this.Click += new System.EventHandler(this.MainForm_Click);
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainForm_Paint);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.MainForm_KeyPress);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.ResumeLayout(false);
 
         }

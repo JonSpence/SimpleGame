@@ -33,8 +33,7 @@ namespace SimpleGameApp
 
         private void OnPainting(object sender, SKPaintSurfaceEventArgs e)
         {
-            Controller.Paint(sender, e);
-            this.btnEndTurn.IsEnabled = Controller.GameBoard.CurrentPlayer.IsHuman;
+            Controller.Paint(sender, e.Surface.Canvas);
         }
 
         /// <summary>
@@ -51,17 +50,7 @@ namespace SimpleGameApp
                 // If the current player is a bot, do another attack
                 if (!Controller.GameBoard.CurrentPlayer.IsHuman)
                 {
-                    var plan = Controller.GameBoard.CurrentPlayer.Bot.PickNextAttack(Controller.GameBoard, Controller.GameBoard.CurrentPlayer);
-                    if (plan == null)
-                    {
-                        Controller.GameBoard.EndTurn();
-                        Controller.StatusTime = DateTime.UtcNow;
-                        cvGameCanvas.InvalidateSurface();
-                    }
-                    else
-                    {
-                        ExecuteAttackPlan(plan);
-                    }
+                    HandleResult(Controller.TakeBotAction());
                 }
             }
             catch (Exception ex)
@@ -71,14 +60,17 @@ namespace SimpleGameApp
             return true;
         }
 
-        private void ExecuteAttackPlan(AttackPlan plan)
+        private void HandleResult(GameViewController.GameAttackResult r)
         {
-            switch (Controller.ExecuteAttackPlan(plan))
+            switch (r)
             {
                 case GameViewController.GameAttackResult.GameOver:
                     Controller.ActionMessage = "Winner: " + Controller.GameBoard.Winner.Color.ToString();
                     var pg = new GameOverPage(Controller.GameBoard);
                     Navigation.PushModalAsync(pg);
+                    break;
+                case GameViewController.GameAttackResult.Invalid:
+                    // What to do here?
                     break;
                 default:
                     cvGameCanvas.InvalidateSurface();
@@ -86,16 +78,9 @@ namespace SimpleGameApp
             }
         }
 
-        void EndTurn_Clicked(object sender, System.EventArgs e)
-        {
-            Controller.GameBoard.EndTurn();
-            cvGameCanvas.InvalidateSurface();
-        }
-
         private void CvGameCanvas_Touch(object sender, SKTouchEventArgs e)
         {
-            Controller.HandleTouch(sender, e);
-            cvGameCanvas.InvalidateSurface();
+            HandleResult(Controller.HandleTouch(sender, e.Location));
         }
     }
 }
