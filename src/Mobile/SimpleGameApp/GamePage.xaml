@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:SimpleGameApp" x:Class="SimpleGameApp.MainPage">
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:views="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:SimpleGameApp" x:Class="SimpleGameApp.MainPage">
     <StackLayout>
         <!-- Place new controls here -->
-        <Image HeightRequest="30" />
-        <Label x:Name="lblStatus" Text="Status" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Label x:Name="lblTurn" Text="Turn" HorizontalOptions="Center" VerticalOptions="Center" />
-        <Label x:Name="lblAction" Text="Action" HorizontalOptions="Center" VerticalOptions="Center" />
-        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-        <Grid x:Name="grdBoard" BackgroundColor="Silver" Padding="0,0,0,0">
+        <Grid x:Name="grdBoard" Padding="0,0,0,0" Margin="0,0,0,0" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <views:SKCanvasView x:Name="cvGameCanvas" EnableTouchEvents="True" Touch="CvGameCanvas_Touch" PaintSurface="OnPainting" />
         </Grid>
-        </ScrollView>
         <StackLayout Orientation="Horizontal" FlowDirection="RightToLeft">
             <Button x:Name="btnEndTurn" Text="End Turn" Clicked="EndTurn_Clicked" />
         </StackLayout>

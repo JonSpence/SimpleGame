@@ -338,7 +338,7 @@ namespace GameLib
             {
                 sb.Append(p.Color.Name);
                 sb.Append("-");
-                sb.Append(((from z in p.Zones select z.Strength).Sum()).ToString());
+                sb.Append(p.CurrentStrength.ToString());
                 sb.Append("   ");
             }
             return sb.ToString();

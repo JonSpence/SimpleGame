@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using GameLib.Interfaces;
+using System.Linq;
 
 namespace GameLib
 {
@@ -42,5 +43,16 @@ namespace GameLib
         /// List of all zones owned by this player, for convenience
         /// </summary>
         public List<Zone> Zones { get; set; }
+
+        /// <summary>
+        /// Current strength of this player
+        /// </summary>
+        public int CurrentStrength
+        {
+            get
+            {
+                return (from z in Zones select z.Strength).Sum();
+            }
+        }
     }
 }
