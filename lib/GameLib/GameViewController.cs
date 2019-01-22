@@ -192,7 +192,7 @@ namespace GameLib
             {
                 var x = (int)(i % 3);
                 var y = (int)(i / 3);
-                canvas.DrawCircle(new SKPoint() { X = x_coords[i % 3], Y = y_coords[i / 3] }, pip_size, new SKPaint() { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true });
+                canvas.DrawCircle(new SKPoint() { X = x_coords[i % 3], Y = y_coords[i / 3] }, pip_size, new SKPaint() { Color = Lighten(color, 0.60f), Style = SKPaintStyle.Fill, IsAntialias = true });
             }
         }
 
