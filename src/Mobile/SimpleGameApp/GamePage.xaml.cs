@@ -44,7 +44,6 @@ namespace SimpleGameApp
             try
             {
                 // Clear all status
-                Controller.ActionMessage = "";
                 Controller.CurrentAttack = null;
 
                 // If the current player is a bot, do another attack
@@ -65,7 +64,6 @@ namespace SimpleGameApp
             switch (r)
             {
                 case GameViewController.GameAttackResult.GameOver:
-                    Controller.ActionMessage = "Winner: " + Controller.GameBoard.Winner.Color.ToString();
                     var pg = new GameOverPage(Controller.GameBoard);
                     Navigation.PushModalAsync(pg);
                     break;

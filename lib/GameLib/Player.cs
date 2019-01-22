@@ -4,6 +4,7 @@ using System.Text;
 using System.Drawing;
 using GameLib.Interfaces;
 using System.Linq;
+using SkiaSharp;
 
 namespace GameLib
 {
@@ -37,7 +38,7 @@ namespace GameLib
         /// <summary>
         /// The official color of this player
         /// </summary>
-        public Color Color { get; set; }
+        public SKColor Color { get; set; }
 
         /// <summary>
         /// List of all zones owned by this player, for convenience

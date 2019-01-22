@@ -26,25 +26,20 @@ namespace WinDesktop
             ResizeRedraw = true;
             DoubleBuffered = true;
 
-            // Basic setup
-            Controller = new GameViewController();
-            Controller.GameBoard = Board.NewBoard(10, 10, 6);
-            Controller.GameBoard.BattleRule = new RankedDice();
-            Controller.GameBoard.ReinforcementRule = new RandomBorder();
-            Controller.GameBoard.Players[0].IsHuman = true;
-            Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
-
             // Add SKCanvas
             skcGame = new SKControl()
             {
-                Top = 0,
-                Left = 0,
-                Width = this.ClientSize.Width,
-                Height = this.ClientSize.Height
+                Top = this.DisplayRectangle.Top + this.menuStrip1.Height,
+                Left = this.DisplayRectangle.Left,
+                Width = this.DisplayRectangle.Width,
+                Height = this.DisplayRectangle.Height - this.menuStrip1.Height
             };
             skcGame.Click += Skc_Click;
             skcGame.PaintSurface += Skc_PaintSurface;
             this.Controls.Add(skcGame);
+
+            // Start basic game
+            StartNewGame();
         }
 
         private void Skc_Click(object sender, EventArgs e)
@@ -52,8 +47,7 @@ namespace WinDesktop
             var m = e as MouseEventArgs;
             if (m != null)
             {
-                Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y));
-                skcGame.Invalidate();
+                HandleResult(Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y)));
             }
         }
 
@@ -90,6 +84,7 @@ namespace WinDesktop
             {
                 case GameViewController.GameAttackResult.GameOver:
                     MessageBox.Show("Winner: " + Controller.GameBoard.Winner.Color.ToString(), "Game Over", MessageBoxButtons.OK);
+                    timer1.Enabled = false;
                     break;
                 case GameViewController.GameAttackResult.Invalid:
                     SystemSounds.Beep.Play();
@@ -102,10 +97,38 @@ namespace WinDesktop
         {
             if (skcGame != null)
             {
-                skcGame.Width = this.ClientSize.Width;
-                skcGame.Height = this.ClientSize.Height;
+                skcGame.Width = this.DisplayRectangle.Width;
+                skcGame.Height = this.DisplayRectangle.Height - this.menuStrip1.Height;
                 skcGame.Invalidate();
             }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartNewGame();
+        }
+
+        private void StartNewGame()
+        {
+            // Basic setup
+            Controller = new GameViewController();
+            Controller.GameBoard = Board.NewBoard(10, 10, 6, Themes.RAINBOW_THEME);
+            Controller.GameBoard.BattleRule = new RankedDice();
+            Controller.GameBoard.ReinforcementRule = new RandomBorder();
+            Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
+
+            // Start the timer for bot stuff
+            timer1.Enabled = true;
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("(C) Ted Spence 2019");
         }
     }
 }

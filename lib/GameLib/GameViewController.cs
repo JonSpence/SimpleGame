@@ -13,7 +13,6 @@ namespace GameLib
     {
         public enum GameAttackResult { Normal, Invalid, GameOver };
 
-        public string ActionMessage { get; set; }
         public Board GameBoard { get; set; }
         public Zone Attacking { get; set; }
         public Zone Defending { get; set; }
@@ -36,28 +35,15 @@ namespace GameLib
             // Update the board
             result.UpdateBoardTask.RunSynchronously();
 
-            // Is it game over?
-            if (!GameBoard.StillPlaying())
-            {
-                ActionMessage = "Winner: " + GameBoard.Winner.Color.ToString();
-                return GameAttackResult.GameOver;
-            }
-
             // Display result of attack
-            ActionMessage = $"Battle Result: {result.Plan.Attacker.X + 1}/{result.Plan.Attacker.Y + 1} vs {result.Plan.Defender.X + 1}/{result.Plan.Defender.Y + 1}:";
-            if (result.AttackSucceeded)
-            {
-                ActionMessage += " Victory!";
-            }
-            else
-            {
-                ActionMessage += " Failed.";
-            }
             StatusTime = DateTime.UtcNow;
             CurrentAttack = result;
 
             // Is the game over?
-            if (!GameBoard.StillPlaying()) return GameAttackResult.GameOver;
+            if (!GameBoard.StillPlaying())
+            {
+                return GameAttackResult.GameOver;
+            }
             return GameAttackResult.Normal;
         }
 
@@ -106,7 +92,7 @@ namespace GameLib
                 player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - padding;
                 SKPaint p = new SKPaint()
                 {
-                    Color = ColorFrom(GameBoard.Players[i].Color),
+                    Color = GameBoard.Players[i].Color,
                     Style = SKPaintStyle.Fill,
                 };
                 canvas.DrawRect(player_box, p);
@@ -136,7 +122,7 @@ namespace GameLib
                 }
                 else
                 {
-                    color = ColorFrom(z.Owner.Color);
+                    color = z.Owner.Color;
                     if (isAttacking)
                     {
                         color = Lighten(color, 0.7f);
@@ -170,7 +156,8 @@ namespace GameLib
                 }
 
                 // Draw strength centered in the box
-                DrawCenteredText(canvas, z.Strength.ToString(), r, textPaint);
+                //DrawCenteredText(canvas, z.Strength.ToString(), r, textPaint);
+                DrawPips(canvas, r, color, z.Strength);
 
                 // Keep track of screen view map
                 dict[r] = z;
@@ -190,6 +177,23 @@ namespace GameLib
 
             // Update viewmap
             HitMap = dict;
+        }
+
+        private void DrawPips(SKCanvas canvas, SKRect r, SKColor color, int strength)
+        {
+            var pip_size = Math.Max(r.Height * 0.05f, r.Width * 0.05f);
+            var vertical_unit = r.Height * 0.375f;
+            var horizontal_unit = r.Width * 0.375f;
+            var vertical_half = r.Height / 2;
+            var horizontal_half = r.Width / 2;
+            var x_coords = new float[] { r.Left + horizontal_unit, r.Left + horizontal_half, r.Right - horizontal_unit };
+            var y_coords = new float[] { r.Top + vertical_unit, r.Top + vertical_half, r.Bottom - vertical_unit };
+            for (int i = 0; i < strength; i++)
+            {
+                var x = (int)(i % 3);
+                var y = (int)(i / 3);
+                canvas.DrawCircle(new SKPoint() { X = x_coords[i % 3], Y = y_coords[i / 3] }, pip_size, new SKPaint() { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true });
+            }
         }
 
         public GameAttackResult TakeBotAction()

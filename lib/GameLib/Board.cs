@@ -7,6 +7,7 @@ using System.Linq;
 using GameLib.Interfaces;
 using GameLib.Bots;
 using GameLib.Messages;
+using SkiaSharp;
 
 namespace GameLib
 {
@@ -30,15 +31,20 @@ namespace GameLib
         public IReinforcementRule ReinforcementRule { get; set; }
         public int CurrentTurn { get; set; }
 
-        public static Color[] COLOR_LIST = new Color[] { Color.ForestGreen, Color.CornflowerBlue, Color.Red, Color.DarkMagenta, Color.MediumPurple, Color.DarkOrange, Color.RosyBrown, Color.DarkOrchid };
-
-        /// <summary>;
+        /// <summary>
         /// Initialize a new game board
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        public static Board NewBoard(int width, int height, int players)
+        /// <param name="players"></param>
+        /// <param name="Theme"></param>
+        /// <returns></returns>
+        public static Board NewBoard(int width, int height, int players, SKColor[] Theme = null)
         {
+            // Default theme
+            if (Theme == null) Theme = Themes.BASE_THEME;
+
+            // Basic board setup
             Board b = new Board();
             b.Width = width;
             b.Height = height;
@@ -54,12 +60,12 @@ namespace GameLib
             b.CurrentTurn = b.Random.Next(players);
 
             // Setup players
-            for (int i = 0; i < Math.Min(players, COLOR_LIST.Length); i++)
+            for (int i = 0; i < Math.Min(players, Theme.Length); i++)
             {
                 Player p = new Player()
                 {
-                    Color = COLOR_LIST[i],
-                    Name = COLOR_LIST[i].ToString(),
+                    Color = Theme[i],
+                    Name = Theme[i].ToString(),
                     Number = i,
                     IsDead = false,
                     Bot = new RandomBot(),
@@ -74,13 +80,12 @@ namespace GameLib
             {
                 for (int j = 0; j < height; j++)
                 {
-                    // Zone size?
                     Zone z = new Zone()
                     {
                         X = i,
                         Y = j,
                         Strength = 1,
-                        MaxStrength = 8,//b.Random.Next(7, 9),
+                        MaxStrength = 9,
                         Owner = null
                     };
                     b.Zones.Add(z);
@@ -336,7 +341,7 @@ namespace GameLib
             sb.Append(": ");
             foreach (var p in Players)
             {
-                sb.Append(p.Color.Name);
+                sb.Append(p.Color.ToString());
                 sb.Append("-");
                 sb.Append(p.CurrentStrength.ToString());
                 sb.Append("   ");
