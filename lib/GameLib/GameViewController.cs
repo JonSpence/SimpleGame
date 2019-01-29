@@ -18,8 +18,6 @@ namespace GameLib
         public Zone Defending { get; set; }
         public BattleResult CurrentAttack { get; set; }
         public DateTime? StatusTime { get; set; }
-        Dictionary<SKRect, Zone> HitMap { get; set; }
-        public SKRect? EndTurnRect { get; set; }
 
         public GameAttackResult ExecuteAttackPlan(AttackPlan plan)
         {
@@ -47,49 +45,56 @@ namespace GameLib
             return GameAttackResult.Normal;
         }
 
+        public RenderDimensions Dimensions { get; set; }
+
+        /// <summary>
+        /// Recalculate dimensions when the size of the display changes
+        /// </summary>
+        /// <returns>The dimensions.</returns>
+        /// <param name="width">Width.</param>
+        /// <param name="height">Height.</param>
+        /// <param name="board"></param>
+        private void Resize(int width, int height, Board board)
+        {
+            if (Dimensions == null || !Dimensions.Match(width, height, board))
+            {
+                Dimensions = new RenderDimensions(width, height, board);
+            }
+        }
+
         public void Paint(object sender, SKCanvas canvas)
         {
+            // See if someone went sneaky and changed our dimensions
+            canvas.GetDeviceClipBounds(out var bounds);
+            Resize(bounds.Width, bounds.Height, GameBoard);
+
             // Clear canvas first
             canvas.Clear(SKColors.White);
-            canvas.GetDeviceClipBounds(out var bounds);
-
-            // Start building a hit map
-            Dictionary<SKRect, Zone> dict = new Dictionary<SKRect, Zone>();
-
-            // Line height: We need 5 lines for status, plus game board height
-            float cellHeight = (bounds.Height / (GameBoard.Height + 3));
 
             // Scale font to size of screen
             var textPaint = new SKPaint
             {
                 IsAntialias = true,
                 Color = SKColors.Black,
-                TextSize = (float)(cellHeight * 0.8)
+                TextSize = Dimensions.CellHeight
             };
 
-            // Reserve room for status information
-            var status_height = cellHeight * 1.5f;
-            var board_height = bounds.Height - status_height;
-            var board_width = bounds.Width;
-
             // Draw strengths of each player
-            var player_width = (bounds.Width / (GameBoard.Players.Count));
-            var padding = cellHeight * 0.1f;
             SKRect player_box = new SKRect();
-            player_box.Top = padding + padding;
-            player_box.Bottom = cellHeight - padding - padding;
+            player_box.Top = Dimensions.PlayerBoxPadding;
+            player_box.Bottom = Dimensions.PlayerBoxBottom;
             for (int i = 0; i < GameBoard.Players.Count; i++)
             {
-                var xpos = player_width * i;
+                var xpos = Dimensions.PlayerWidth * i;
 
                 // Highlight active player
                 if (GameBoard.CurrentTurn == i) {
-                    canvas.DrawRect(new SKRect(xpos, 0, xpos + player_width, cellHeight), new SKPaint() { Color = SKColors.Gray, Style = SKPaintStyle.Fill });
+                    canvas.DrawRect(new SKRect(xpos, 0, xpos + Dimensions.PlayerWidth, Dimensions.CellHeight), new SKPaint() { Color = SKColors.Gray, Style = SKPaintStyle.Fill });
                 }
 
                 // Adjust dimensions of box and draw their color indicator
-                player_box.Left = xpos + padding + padding;
-                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - padding;
+                player_box.Left = xpos + Dimensions.PlayerBoxPadding;
+                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - Dimensions.PlayerStatusPadding;
                 SKPaint p = new SKPaint()
                 {
                     Color = GameBoard.Players[i].Color,
@@ -100,14 +105,11 @@ namespace GameLib
                 {
                     Color = Lighten(p.Color, 0.20f),
                     Style = SKPaintStyle.Stroke,
-                    StrokeWidth = padding,
+                    StrokeWidth = Dimensions.PlayerStatusPadding,
                 };
                 canvas.DrawRect(player_box, border);
-                canvas.DrawText(GameBoard.Players[i].CurrentStrength.ToString(), (player_box.Right + (padding * 2)), player_box.Bottom, textPaint);
+                canvas.DrawText(GameBoard.Players[i].CurrentStrength.ToString(), (player_box.Right + (Dimensions.PlayerBoxPadding)), player_box.Bottom, textPaint);
             }
-
-            // Figure out cell height and width
-            float cellWidth = board_width * 1.0f / GameBoard.Width;
 
             // Draw each zone
             foreach (var z in GameBoard.Zones)
@@ -130,11 +132,7 @@ namespace GameLib
                 }
 
                 // Figure out rectangle
-                SKRect r = new SKRect();
-                r.Left = cellWidth * z.X;
-                r.Top = status_height + cellHeight * z.Y;
-                r.Right = r.Left + cellWidth;
-                r.Bottom = r.Top + cellHeight;
+                SKRect r = Dimensions.ZoneToRect[z];
 
                 // Draw rectangle
                 SKPaint p = new SKPaint()
@@ -156,27 +154,16 @@ namespace GameLib
                 }
 
                 // Draw strength centered in the box
-                //DrawCenteredText(canvas, z.Strength.ToString(), r, textPaint);
                 DrawPips(canvas, r, color, z.Strength);
-
-                // Keep track of screen view map
-                dict[r] = z;
             }
 
             // Do we need to draw the "End Turn" button?
-            EndTurnRect = null;
             if (GameBoard.CurrentPlayer.IsHuman)
             {
-                var p4 = padding;
-                EndTurnRect = new SKRect(0 + p4, bounds.Bottom - (cellHeight * 1.5f) + p4, bounds.Right - p4, bounds.Bottom - p4);
-                SKRoundRect rr = new SKRoundRect(EndTurnRect.Value, padding, padding);
-                canvas.DrawRoundRect(rr, new SKPaint() { Style = SKPaintStyle.Fill, Color = SKColors.DarkGray });
-                canvas.DrawRoundRect(rr, new SKPaint() { Style = SKPaintStyle.Stroke, Color = SKColors.LightGray });
-                DrawCenteredText(canvas, "END TURN", EndTurnRect.Value, textPaint);
+                canvas.DrawRoundRect(Dimensions.EndTurnRect, new SKPaint() { Style = SKPaintStyle.Fill, Color = SKColors.DarkGray });
+                canvas.DrawRoundRect(Dimensions.EndTurnRect, new SKPaint() { Style = SKPaintStyle.Stroke, Color = SKColors.LightGray });
+                DrawCenteredText(canvas, "END TURN", Dimensions.EndTurnRect.Rect, textPaint);
             }
-
-            // Update viewmap
-            HitMap = dict;
         }
 
         private void DrawPips(SKCanvas canvas, SKRect r, SKColor color, int strength)
@@ -220,13 +207,10 @@ namespace GameLib
             if (!GameBoard.CurrentPlayer.IsHuman) return GameAttackResult.Invalid;
 
             // Was this an end turn touch?
-            if (EndTurnRect.HasValue)
+            if (Dimensions.EndTurnRect.Rect.Contains(location))
             {
-                if (EndTurnRect.Value.Contains(location))
-                {
-                    GameBoard.EndTurn();
-                    return GameAttackResult.Normal;
-                }
+                GameBoard.EndTurn();
+                return GameAttackResult.Normal;
             }
 
             // Figure out what zone was touched
@@ -259,11 +243,11 @@ namespace GameLib
 
         private Zone HitTestZone(SKPoint location)
         {
-            foreach (var kvp in HitMap)
+            foreach (var kvp in Dimensions.ZoneToRect)
             {
-                if (kvp.Key.Contains(location))
+                if (kvp.Value.Contains(location))
                 {
-                    return kvp.Value;
+                    return kvp.Key;
                 }
             }
             return null;

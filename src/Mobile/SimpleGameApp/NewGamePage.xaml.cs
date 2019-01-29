@@ -30,9 +30,9 @@ namespace SimpleGameApp
             switch (ddlDimensions.SelectedIndex)
             {
                 case 0: b = Board.NewBoard(3, 6, 3); break;
-                case 1: b = Board.NewBoard(4, 10, 4); break;
-                case 2: b = Board.NewBoard(5, 15, 5); break;
-                default: b = Board.NewBoard(7, 20, 6); break;
+                case 1: b = Board.NewBoard(4, 9, 4); break;
+                case 2: b = Board.NewBoard(5, 11, 5); break;
+                default: b = Board.NewBoard(7, 13, 6); break;
             }
 
             // Figure out dice rule
