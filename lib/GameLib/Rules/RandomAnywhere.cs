@@ -1,4 +1,5 @@
-﻿using GameLib.Interfaces;
+﻿using GameLib.Animations;
+using GameLib.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,11 @@ namespace GameLib.Rules
 {
     public class RandomAnywhere : IReinforcementRule
     {
-        public void Reinforce(Board b, Player p, int reinforcements)
+        public ReinforceAnimation Reinforce(Board b, Player p, int reinforcements)
         {
-            b.TryReinforce(p.Zones, reinforcements);
+            ReinforceAnimation anim = new ReinforceAnimation(b);
+            b.TryReinforce(p.Zones, reinforcements, anim);
+            return anim;
         }
     }
 }

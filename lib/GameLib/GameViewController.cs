@@ -1,4 +1,5 @@
 ﻿using GameLib;
+using GameLib.Animations;
 using GameLib.Messages;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
@@ -11,38 +12,39 @@ namespace GameLib
 {
     public class GameViewController
     {
-        public enum GameAttackResult { Normal, Invalid, GameOver };
+        //public enum GameAttackResult { Normal, Invalid, GameOver };
 
         public Board GameBoard { get; set; }
         public Zone Attacking { get; set; }
         public Zone Defending { get; set; }
-        public BattleResult CurrentAttack { get; set; }
-        public DateTime? StatusTime { get; set; }
+        //public ActionResult CurrentAttack { get; set; }
+        public BaseAnimation Playing { get; set; }
+        public Queue<BaseAnimation> PlayQueue { get; set; }
 
-        public GameAttackResult ExecuteAttackPlan(AttackPlan plan)
+        public GameViewController()
+        {
+            PlayQueue = new Queue<BaseAnimation>();
+            Playing = null;
+        }
+
+        public void ExecuteAttackPlan(AttackPlan plan)
         {
             var result = GameBoard.BattleRule.Attack(GameBoard, GameBoard.Players[GameBoard.CurrentTurn], plan);
-            this.Attacking = null;
 
             // Safety check
-            if (result.AttackWasInvalid)
+            if (result.AttackWasInvalid) return;
+
+            // Set up all animations in sequence
+            if (result.Animations != null)
             {
-                return GameAttackResult.Invalid;
+                foreach (var a in result.Animations)
+                {
+                    PlayQueue.Enqueue(a);
+                }
             }
 
-            // Update the board
-            result.UpdateBoardTask.RunSynchronously();
-
-            // Display result of attack
-            StatusTime = DateTime.UtcNow;
-            CurrentAttack = result;
-
-            // Is the game over?
-            if (!GameBoard.StillPlaying())
-            {
-                return GameAttackResult.GameOver;
-            }
-            return GameAttackResult.Normal;
+            // Clear attacker animation if any
+            this.Attacking = null;
         }
 
         public RenderDimensions Dimensions { get; set; }
@@ -68,6 +70,13 @@ namespace GameLib
             canvas.GetDeviceClipBounds(out var bounds);
             Resize(bounds.Width, bounds.Height, GameBoard);
 
+            // Update currently playing animation
+            bool end_of_anim = false;
+            if (Playing != null)
+            {
+                end_of_anim = Playing.Heartbeat();
+            }
+
             // Clear canvas first
             canvas.Clear(SKColors.White);
 
@@ -80,36 +89,7 @@ namespace GameLib
             };
 
             // Draw strengths of each player
-            SKRect player_box = new SKRect();
-            player_box.Top = Dimensions.PlayerBoxPadding;
-            player_box.Bottom = Dimensions.PlayerBoxBottom;
-            for (int i = 0; i < GameBoard.Players.Count; i++)
-            {
-                var xpos = Dimensions.PlayerWidth * i;
-
-                // Highlight active player
-                if (GameBoard.CurrentTurn == i) {
-                    canvas.DrawRect(new SKRect(xpos, 0, xpos + Dimensions.PlayerWidth, Dimensions.CellHeight), new SKPaint() { Color = SKColors.Gray, Style = SKPaintStyle.Fill });
-                }
-
-                // Adjust dimensions of box and draw their color indicator
-                player_box.Left = xpos + Dimensions.PlayerBoxPadding;
-                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - Dimensions.PlayerStatusPadding;
-                SKPaint p = new SKPaint()
-                {
-                    Color = GameBoard.Players[i].Color,
-                    Style = SKPaintStyle.Fill,
-                };
-                canvas.DrawRect(player_box, p);
-                SKPaint border = new SKPaint()
-                {
-                    Color = Lighten(p.Color, 0.20f),
-                    Style = SKPaintStyle.Stroke,
-                    StrokeWidth = Dimensions.PlayerStatusPadding,
-                };
-                canvas.DrawRect(player_box, border);
-                canvas.DrawText(GameBoard.Players[i].CurrentStrength.ToString(), (player_box.Right + (Dimensions.PlayerBoxPadding)), player_box.Bottom, textPaint);
-            }
+            DrawPlayerScores(canvas, textPaint);
 
             // Draw each zone
             foreach (var z in GameBoard.Zones)
@@ -117,18 +97,14 @@ namespace GameLib
                 bool isAttacking = (z == Attacking || z == Defending);
 
                 // Figure out color to use
-                SKColor color = new SKColor(50, 50, 50);
-                if (z.Owner == null)
+                SKColor color = GetBaseColor(z);
+                if (Playing != null)
                 {
-                    color = new SKColor(50, 50, 50);
+                    color = Playing.RecolorZone(z);
                 }
-                else
+                if (isAttacking)
                 {
-                    color = z.Owner.Color;
-                    if (isAttacking)
-                    {
-                        color = Lighten(color, 0.7f);
-                    }
+                    color = Lighten(color, 0.7f);
                 }
 
                 // Figure out rectangle
@@ -164,6 +140,79 @@ namespace GameLib
                 canvas.DrawRoundRect(Dimensions.EndTurnRect, new SKPaint() { Style = SKPaintStyle.Stroke, Color = SKColors.LightGray });
                 DrawCenteredText(canvas, "END TURN", Dimensions.EndTurnRect.Rect, textPaint);
             }
+
+            // Are we ready for the next animation?
+            if (end_of_anim || Playing == null)
+            {
+                if (PlayQueue.Count > 0)
+                {
+                    Playing = PlayQueue.Dequeue();
+                }
+                else
+                {
+                    // If the current player is a bot, do another attack
+                    if (!GameBoard.CurrentPlayer.IsHuman)
+                    {
+                        TakeBotAction();
+                    }
+                    else
+                    {
+                        Playing = null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Basic color for the zone without any other items affecting it
+        /// </summary>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public static SKColor GetBaseColor(Zone z)
+        {
+            if (z.Owner != null)
+            {
+                return z.Owner.Color;
+            }
+            else
+            {
+                return new SKColor(40, 40, 40);
+            }
+        }
+
+        private void DrawPlayerScores(SKCanvas canvas, SKPaint textPaint)
+        {
+            SKRect player_box = new SKRect();
+            player_box.Top = Dimensions.PlayerBoxPadding;
+            player_box.Bottom = Dimensions.PlayerBoxBottom;
+            for (int i = 0; i < GameBoard.Players.Count; i++)
+            {
+                var xpos = Dimensions.PlayerWidth * i;
+
+                // Highlight active player
+                if (GameBoard.CurrentTurn == i)
+                {
+                    canvas.DrawRect(new SKRect(xpos, 0, xpos + Dimensions.PlayerWidth, Dimensions.CellHeight), new SKPaint() { Color = SKColors.Gray, Style = SKPaintStyle.Fill });
+                }
+
+                // Adjust dimensions of box and draw their color indicator
+                player_box.Left = xpos + Dimensions.PlayerBoxPadding;
+                player_box.Right = player_box.Left + (player_box.Bottom - player_box.Top) - Dimensions.PlayerStatusPadding;
+                SKPaint p = new SKPaint()
+                {
+                    Color = GameBoard.Players[i].Color,
+                    Style = SKPaintStyle.Fill,
+                };
+                canvas.DrawRect(player_box, p);
+                SKPaint border = new SKPaint()
+                {
+                    Color = Lighten(p.Color, 0.20f),
+                    Style = SKPaintStyle.Stroke,
+                    StrokeWidth = Dimensions.PlayerStatusPadding,
+                };
+                canvas.DrawRect(player_box, border);
+                canvas.DrawText(GameBoard.Players[i].CurrentStrength.ToString(), (player_box.Right + (Dimensions.PlayerBoxPadding)), player_box.Bottom, textPaint);
+            }
         }
 
         private void DrawPips(SKCanvas canvas, SKRect r, SKColor color, int strength)
@@ -183,10 +232,13 @@ namespace GameLib
             }
         }
 
-        public GameAttackResult TakeBotAction()
+        public void TakeBotAction()
         {
             // Can't take bot actions for a human
-            if (GameBoard.CurrentPlayer.IsHuman) return GameAttackResult.Invalid;
+            if (GameBoard.CurrentPlayer.IsHuman)
+            {
+                return;
+            }
 
             // Okay, we're a bot, let's pick an attack
             var plan = GameBoard.CurrentPlayer.Bot.PickNextAttack(GameBoard, GameBoard.CurrentPlayer);
@@ -194,38 +246,43 @@ namespace GameLib
             // No attack means our turn is over
             if (plan != null)
             {
-                return ExecuteAttackPlan(plan);
+                ExecuteAttackPlan(plan);
             }
-
-            // No attack means turn is over
-            GameBoard.EndTurn();
-            return GameAttackResult.Normal;
+            else
+            {
+                Playing = GameBoard.EndTurn();
+            }
         }
 
-        public GameAttackResult HandleTouch(object sender, SKPoint location)
+        public void HandleTouch(object sender, SKPoint location)
         {
-            if (!GameBoard.CurrentPlayer.IsHuman) return GameAttackResult.Invalid;
+            if (!GameBoard.CurrentPlayer.IsHuman)
+            {
+                return;
+            }
 
             // Was this an end turn touch?
             if (Dimensions.EndTurnRect.Rect.Contains(location))
             {
-                GameBoard.EndTurn();
-                return GameAttackResult.Normal;
+                Playing = GameBoard.EndTurn();
             }
 
             // Figure out what zone was touched
             var zone = HitTestZone(location);
-            if (zone == null) return GameAttackResult.Invalid;
+            if (zone == null)
+            {
+                return;
+            }
 
             // Set an attacker
             if (this.Attacking == null)
             {
                 if (zone.Owner.Number != GameBoard.CurrentTurn)
                 {
-                    return GameAttackResult.Invalid;
+                    return;
                 }
                 this.Attacking = zone;
-                return GameAttackResult.Normal;
+                return;
             }
 
             // Setup attack plan
@@ -237,8 +294,6 @@ namespace GameLib
 
             // Execute the attack and see what the result is
             ExecuteAttackPlan(plan);
-            if (!GameBoard.StillPlaying()) return GameAttackResult.GameOver;
-            return GameAttackResult.Normal;
         }
 
         private Zone HitTestZone(SKPoint location)

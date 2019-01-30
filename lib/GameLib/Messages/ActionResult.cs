@@ -1,12 +1,15 @@
-﻿using System;
+﻿using GameLib.Animations;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GameLib.Messages
 {
-    public class BattleResult
+    public class ActionResult
     {
+        public List<BaseAnimation> Animations { get; set; }
+
         /// <summary>
         /// This gets set to false if the user tried to attack something invalid
         /// </summary>
@@ -30,6 +33,6 @@ namespace GameLib.Messages
         /// <summary>
         /// Return this result when the attack could not be executed because it was invalid
         /// </summary>
-        public static BattleResult INVALID = new BattleResult() { AttackWasInvalid = true };
+        public static ActionResult INVALID = new ActionResult() { AttackWasInvalid = true };
     }
 }

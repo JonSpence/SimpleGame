@@ -1,4 +1,5 @@
-﻿using GameLib.Interfaces;
+﻿using GameLib.Animations;
+using GameLib.Interfaces;
 using GameLib.Messages;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,11 @@ namespace GameLib.Rules
 {
     public class HighestRoll : IBattleRule
     {
-        public BattleResult Attack(Board b, Player p, AttackPlan plan)
+        public ActionResult Attack(Board b, Player p, AttackPlan plan)
         {
             // Basic tests
             if (b.AttackIsInvalid(plan)) { 
-                return BattleResult.INVALID;
+                return ActionResult.INVALID;
             }
 
             // Roll dice based on strength - note that one unit must stay home for attacker
@@ -22,12 +23,14 @@ namespace GameLib.Rules
             bool wins = attacker_roll > defender_roll;
 
             // Handle the best roll
-            return new BattleResult()
+            var r = new ActionResult()
             {
                 AttackWasInvalid = false,
                 Plan = plan,
                 AttackSucceeded = wins,
-                UpdateBoardTask = new System.Threading.Tasks.Task(() =>
+                Animations = new List<BaseAnimation>()
+            };
+            r.Animations.Add(new AttackAnimation(b, plan.Attacker, plan.Defender, new System.Threading.Tasks.Task(() =>
                 {
                     if (wins)
                     {
@@ -44,8 +47,8 @@ namespace GameLib.Rules
                         plan.Defender.Strength = plan.Attacker.Strength - 1;
                     }
                     plan.Attacker.Strength = 1;
-                })
-            };
+                })));
+            return r;
         }
     }
 }

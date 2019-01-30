@@ -1,4 +1,5 @@
-﻿using GameLib.Interfaces;
+﻿using GameLib.Animations;
+using GameLib.Interfaces;
 using GameLib.Messages;
 using System;
 using System.Collections.Generic;
@@ -9,21 +10,25 @@ namespace GameLib.Rules
 {
     public class AlwaysWin : IBattleRule
     {
-        public BattleResult Attack(Board b, Player p, AttackPlan plan)
+        public ActionResult Attack(Board b, Player p, AttackPlan plan)
         {
             // Basic tests
             if (b.AttackIsInvalid(plan))
             {
-                return BattleResult.INVALID;
+                return ActionResult.INVALID;
             }
 
             // Always win
-            return new BattleResult()
+            var r = new ActionResult()
             {
                 AttackWasInvalid = false,
                 Plan = plan,
                 AttackSucceeded = true,
-                UpdateBoardTask = new System.Threading.Tasks.Task(() =>
+                Animations = new List<BaseAnimation>()
+            };
+
+            // Add battle animation
+            r.Animations.Add(new AttackAnimation(b, plan.Attacker, plan.Defender, new System.Threading.Tasks.Task(() =>
                 {
                     if (plan.Defender.Owner != null)
                     {
@@ -37,8 +42,8 @@ namespace GameLib.Rules
                     plan.Attacker.Owner.Zones.Add(plan.Defender);
                     plan.Defender.Strength = plan.Attacker.Strength - 1;
                     plan.Attacker.Strength = 1;
-                })
-            };
+                })));
+            return r;
         }
     }
 }

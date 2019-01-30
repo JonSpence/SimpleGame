@@ -40,6 +40,11 @@ namespace WinDesktop
 
             // Start basic game
             StartNewGame();
+
+            // Set up timer
+            timer1.Interval = 32;
+            timer1.Tick += timer1_Tick;
+            timer1.Start();
         }
 
         private void Skc_Click(object sender, EventArgs e)
@@ -47,7 +52,7 @@ namespace WinDesktop
             var m = e as MouseEventArgs;
             if (m != null)
             {
-                HandleResult(Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y)));
+                Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y));
             }
         }
 
@@ -71,14 +76,14 @@ namespace WinDesktop
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            // If the current player is a bot, do another attack
-            if (!Controller.GameBoard.CurrentPlayer.IsHuman)
+            // If an animation is playing, render
+            if (Controller.Playing != null)
             {
-                HandleResult(Controller.TakeBotAction());
+                skcGame.Invalidate();
             }
         }
 
-        private void HandleResult(GameViewController.GameAttackResult gameAttackResult)
+        /*private void HandleResult(GameViewController.GameAttackResult gameAttackResult)
         {
             switch (gameAttackResult)
             {
@@ -91,7 +96,7 @@ namespace WinDesktop
                     break;
             }
             skcGame.Invalidate();
-        }
+        }*/
 
         private void MainForm_Resize(object sender, EventArgs e)
         {

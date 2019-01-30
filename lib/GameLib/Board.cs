@@ -8,6 +8,7 @@ using GameLib.Interfaces;
 using GameLib.Bots;
 using GameLib.Messages;
 using SkiaSharp;
+using GameLib.Animations;
 
 namespace GameLib
 {
@@ -30,6 +31,23 @@ namespace GameLib
         public IBattleRule BattleRule { get; set; }
         public IReinforcementRule ReinforcementRule { get; set; }
         public int CurrentTurn { get; set; }
+
+        /// <summary>
+        /// Set the turn to the next non-dead player
+        /// </summary>
+        public void NextPlayerTurn()
+        {
+            for (int i = 0; i < NumPlayers; i++)
+            {
+                CurrentTurn++;
+                if (CurrentTurn >= Players.Count)
+                {
+                    CurrentTurn = 0;
+                    Round++;
+                }
+                if (!Players[CurrentTurn].IsDead) break;
+            }
+        }
 
         /// <summary>
         /// Initialize a new game board
@@ -117,7 +135,7 @@ namespace GameLib
             int reinforcements = (int)((width * height * 3) / players);
             for (int i = 0; i < players; i++)
             {
-                rule.Reinforce(b, b.Players[i], reinforcements);
+                b.TryReinforce(b.Players[i].Zones, reinforcements, null);
             }
             return b;
         }
@@ -195,26 +213,14 @@ namespace GameLib
         /// <summary>
         /// End the current turn
         /// </summary>
-        public void EndTurn()
+        public ReinforceAnimation EndTurn()
         {
             // Which player was playing?
             var p = Players[CurrentTurn];
 
             // Figure out reinforcements for this player
             int reinforcements = GetLargestArea(p).Count;
-            ReinforcementRule.Reinforce(this, p, reinforcements);
-
-            // Advance to next non-dead player
-            for (int i = 0; i < NumPlayers; i++)
-            {
-                CurrentTurn++;
-                if (CurrentTurn >= Players.Count)
-                {
-                    CurrentTurn = 0;
-                    Round++;
-                }
-                if (!Players[CurrentTurn].IsDead) break;
-            }
+            return ReinforcementRule.Reinforce(this, p, reinforcements);
         }
 
         /// <summary>
@@ -281,7 +287,8 @@ namespace GameLib
         /// <returns>Number of remaining reinforcements that could not be placed</returns>
         /// <param name="zones">Zones.</param>
         /// <param name="numReinforcements">Number to try to place.</param>
-        public int TryReinforce(List<Zone> zones, int numReinforcements)
+        /// <param name="anim">Animation to update</param>
+        public int TryReinforce(List<Zone> zones, int numReinforcements, ReinforceAnimation anim)
         {
             List<Zone> remaining = new List<Zone>(zones);
             while (numReinforcements > 0 && remaining.Count > 0)
@@ -290,7 +297,14 @@ namespace GameLib
                 var z = remaining[toReinforce];
                 if (z.Strength < z.MaxStrength)
                 {
-                    z.Strength++;
+                    if (anim == null)
+                    {
+                        z.Strength++;
+                    }
+                    else
+                    {
+                        anim.AddUnit(z);
+                    }
                     numReinforcements--;
                 }
                 else

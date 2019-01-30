@@ -1,4 +1,5 @@
-﻿using GameLib.Interfaces;
+﻿using GameLib.Animations;
+using GameLib.Interfaces;
 using GameLib.Messages;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,11 @@ namespace GameLib.Rules
 {
     public class RankedDice : IBattleRule
     {
-        public BattleResult Attack(Board b, Player p, AttackPlan plan)
+        public ActionResult Attack(Board b, Player p, AttackPlan plan)
         {
             // Basic tests
             if (b.AttackIsInvalid(plan)) { 
-                return BattleResult.INVALID;
+                return ActionResult.INVALID;
             }
 
             // Roll one die per strength counter, sort by highest rolls descending
@@ -47,12 +48,14 @@ namespace GameLib.Rules
             var wins = (defender_losses >= plan.Defender.Strength);
 
             // Handle results
-            return new BattleResult()
+            var r = new ActionResult()
             {
                 AttackWasInvalid = false,
                 Plan = plan,
                 AttackSucceeded = wins,
-                UpdateBoardTask = new System.Threading.Tasks.Task(() =>
+                Animations = new List<BaseAnimation>()
+            };
+            r.Animations.Add(new AttackAnimation(b, plan.Attacker, plan.Defender, new System.Threading.Tasks.Task(() =>
                 {
                     if (wins)
                     {
@@ -74,8 +77,8 @@ namespace GameLib.Rules
                         plan.Attacker.Strength = plan.Attacker.Strength - attacker_losses;
                         plan.Defender.Strength = plan.Defender.Strength - defender_losses;
                     }
-                })
-            };
+                })));
+            return r;
         }
     }
 }

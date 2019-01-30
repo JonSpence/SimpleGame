@@ -7,6 +7,6 @@ namespace GameLib.Interfaces
 {
     public interface IBattleRule
     {
-        BattleResult Attack(Board b, Player p, AttackPlan plan);
+        ActionResult Attack(Board b, Player p, AttackPlan plan);
     }
 }
