@@ -12,12 +12,9 @@ namespace GameLib
 {
     public class GameViewController
     {
-        //public enum GameAttackResult { Normal, Invalid, GameOver };
-
         public Board GameBoard { get; set; }
         public Zone Attacking { get; set; }
         public Zone Defending { get; set; }
-        //public ActionResult CurrentAttack { get; set; }
         public BaseAnimation Playing { get; set; }
         public Queue<BaseAnimation> PlayQueue { get; set; }
 
