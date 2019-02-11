@@ -39,7 +39,7 @@ namespace WinDesktop
             this.Controls.Add(skcGame);
 
             // Start basic game
-            StartNewGame();
+            //StartNewGame();
 
             // Set up timer
             timer1.Interval = 32;
@@ -52,13 +52,19 @@ namespace WinDesktop
             var m = e as MouseEventArgs;
             if (m != null)
             {
-                Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y));
+                if (Controller != null)
+                {
+                    Controller.HandleTouch(sender, new SkiaSharp.SKPoint(m.X, m.Y));
+                }
             }
         }
 
         private void Skc_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
-            Controller.Paint(sender, e.Surface.Canvas);
+            if (Controller != null)
+            {
+                Controller.Paint(sender, e.Surface.Canvas);
+            }
         }
 
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
@@ -77,26 +83,11 @@ namespace WinDesktop
         private void timer1_Tick(object sender, EventArgs e)
         {
             // If an animation is playing, render
-            if (Controller.Playing != null)
+            if (Controller != null)
             {
                 skcGame.Invalidate();
             }
         }
-
-        /*private void HandleResult(GameViewController.GameAttackResult gameAttackResult)
-        {
-            switch (gameAttackResult)
-            {
-                case GameViewController.GameAttackResult.GameOver:
-                    MessageBox.Show("Winner: " + Controller.GameBoard.Winner.Color.ToString(), "Game Over", MessageBoxButtons.OK);
-                    timer1.Enabled = false;
-                    break;
-                case GameViewController.GameAttackResult.Invalid:
-                    SystemSounds.Beep.Play();
-                    break;
-            }
-            skcGame.Invalidate();
-        }*/
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
@@ -115,7 +106,12 @@ namespace WinDesktop
 
         private void newGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StartNewGame();
+            NewGameDialog dlg = new NewGameDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                StartNewGame();
+                skcGame.Invalidate();
+            }
         }
 
         private void StartNewGame()
