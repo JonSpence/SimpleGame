@@ -116,9 +116,17 @@ namespace WinDesktop
 
         private void StartNewGame()
         {
+
+            // Get the selected options for new game
+            // int playerCount = NewGameDialog.NewNumPlayers(); // NOT WORKING
+            // int boardWidth = NewGameDialog.NewNumPlayers(); // NOT WORKING
+            // int boardHeightt = NewGameDialog.NewNumPlayers(); // NOT WORKING
+            int playerCount = 6;
+            int boardWidth = 20;
+            int boardHeight = 20;
             // Basic setup
             Controller = new GameViewController();
-            Controller.GameBoard = Board.NewBoard(10, 10, 6, Themes.RAINBOW_THEME);
+            Controller.GameBoard = Board.NewBoard(boardWidth, boardHeight, playerCount, Themes.RAINBOW_THEME);
             Controller.GameBoard.BattleRule = new RankedDice();
             Controller.GameBoard.ReinforcementRule = new RandomBorder();
             Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
