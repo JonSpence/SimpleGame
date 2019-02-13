@@ -109,21 +109,14 @@ namespace WinDesktop
             NewGameDialog dlg = new NewGameDialog();
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                StartNewGame();
+                StartNewGame(dlg.NewNumPlayers(),dlg.NewBoardWidth(),dlg.NewBoardHeight());
                 skcGame.Invalidate();
             }
         }
 
-        private void StartNewGame()
+        private void StartNewGame(int playerCount, int boardWidth, int boardHeight)
         {
 
-            // Get the selected options for new game
-            // int playerCount = NewGameDialog.NewNumPlayers(); // NOT WORKING
-            // int boardWidth = NewGameDialog.NewNumPlayers(); // NOT WORKING
-            // int boardHeightt = NewGameDialog.NewNumPlayers(); // NOT WORKING
-            int playerCount = 6;
-            int boardWidth = 20;
-            int boardHeight = 20;
             // Basic setup
             Controller = new GameViewController();
             Controller.GameBoard = Board.NewBoard(boardWidth, boardHeight, playerCount, Themes.RAINBOW_THEME);
