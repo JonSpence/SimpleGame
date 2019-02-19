@@ -19,21 +19,30 @@ namespace WinDesktop
             InitializeComponent();
         }
 
-        // Allow access to the private number of new players through a public method
+        /// <summary>
+        /// Allow access to the private number of new players through a public method
+        /// </summary>
+        /// <returns></returns>
         public int NewNumPlayers()
         {
             
             return Int32.Parse(cbxNumPlayers.SelectedItem.ToString()); 
         }
 
-        // Allow access to the private width of new game board through a public method
+        /// <summary>
+        /// Allow access to the private width of new game board through a public method
+        /// </summary>
+        /// <returns></returns>
         public int NewBoardWidth()
         {
 
             return Int32.Parse(cbxGameWidth.SelectedItem.ToString());
         }
 
-        // Allow access to the private height of new game board through a public method
+        /// <summary>
+        /// Allow access to the private height of new game board through a public method
+        /// </summary>
+        /// <returns></returns>
         public int NewBoardHeight()
         {
 
