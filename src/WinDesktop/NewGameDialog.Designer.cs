@@ -45,10 +45,10 @@
             // 
             this.button1.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.button1.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(149, 397);
+            this.button1.Location = new System.Drawing.Point(149, 430);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(60, 33);
+            this.button1.Size = new System.Drawing.Size(60, 36);
             this.button1.TabIndex = 0;
             this.button1.Text = "START";
             this.button1.UseVisualStyleBackColor = true;
@@ -57,10 +57,10 @@
             // 
             this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button2.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(314, 397);
+            this.button2.Location = new System.Drawing.Point(314, 430);
             this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(67, 33);
+            this.button2.Size = new System.Drawing.Size(67, 36);
             this.button2.TabIndex = 1;
             this.button2.Text = "CANCEL";
             this.button2.UseVisualStyleBackColor = true;
@@ -68,9 +68,9 @@
             // PlayerNumSelect_Label
             // 
             this.PlayerNumSelect_Label.AutoSize = true;
-            this.PlayerNumSelect_Label.Location = new System.Drawing.Point(76, 90);
+            this.PlayerNumSelect_Label.Location = new System.Drawing.Point(76, 98);
             this.PlayerNumSelect_Label.Name = "PlayerNumSelect_Label";
-            this.PlayerNumSelect_Label.Size = new System.Drawing.Size(133, 12);
+            this.PlayerNumSelect_Label.Size = new System.Drawing.Size(123, 13);
             this.PlayerNumSelect_Label.TabIndex = 4;
             this.PlayerNumSelect_Label.Text = "Select number of players";
             // 
@@ -78,7 +78,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Open Sans", 20F, System.Drawing.FontStyle.Bold);
-            this.label1.Location = new System.Drawing.Point(117, 22);
+            this.label1.Location = new System.Drawing.Point(117, 24);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(294, 37);
             this.label1.TabIndex = 6;
@@ -86,20 +86,21 @@
             // 
             // cbxNumPlayers
             // 
+            this.cbxNumPlayers.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxNumPlayers.FormattingEnabled = true;
             this.cbxNumPlayers.Items.AddRange(new object[] {
             "3",
             "4",
             "5",
             "6"});
-            this.cbxNumPlayers.Location = new System.Drawing.Point(215, 87);
+            this.cbxNumPlayers.Location = new System.Drawing.Point(215, 94);
             this.cbxNumPlayers.Name = "cbxNumPlayers";
-            this.cbxNumPlayers.Size = new System.Drawing.Size(67, 20);
+            this.cbxNumPlayers.Size = new System.Drawing.Size(67, 21);
             this.cbxNumPlayers.TabIndex = 7;
-            this.cbxNumPlayers.Text = "6";
             // 
             // cbxGameWidth
             // 
+            this.cbxGameWidth.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxGameWidth.FormattingEnabled = true;
             this.cbxGameWidth.Items.AddRange(new object[] {
             "10",
@@ -108,14 +109,14 @@
             "13",
             "14",
             "15"});
-            this.cbxGameWidth.Location = new System.Drawing.Point(215, 133);
+            this.cbxGameWidth.Location = new System.Drawing.Point(215, 144);
             this.cbxGameWidth.Name = "cbxGameWidth";
-            this.cbxGameWidth.Size = new System.Drawing.Size(67, 20);
+            this.cbxGameWidth.Size = new System.Drawing.Size(67, 21);
             this.cbxGameWidth.TabIndex = 8;
-            this.cbxGameWidth.Text = "10";
             // 
             // cbxGameHeight
             // 
+            this.cbxGameHeight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxGameHeight.FormattingEnabled = true;
             this.cbxGameHeight.Items.AddRange(new object[] {
             "10",
@@ -124,28 +125,27 @@
             "13",
             "14",
             "15"});
-            this.cbxGameHeight.Location = new System.Drawing.Point(215, 178);
+            this.cbxGameHeight.Location = new System.Drawing.Point(215, 193);
             this.cbxGameHeight.Name = "cbxGameHeight";
-            this.cbxGameHeight.Size = new System.Drawing.Size(67, 20);
+            this.cbxGameHeight.Size = new System.Drawing.Size(67, 21);
             this.cbxGameHeight.TabIndex = 9;
-            this.cbxGameHeight.Text = "10";
             this.cbxGameHeight.SelectedIndexChanged += new System.EventHandler(this.cbxGameHeight_SelectedIndexChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(109, 136);
+            this.label2.Location = new System.Drawing.Point(109, 147);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(100, 12);
+            this.label2.Size = new System.Drawing.Size(97, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "Game Board Width";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(104, 181);
+            this.label3.Location = new System.Drawing.Point(104, 196);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(105, 12);
+            this.label3.Size = new System.Drawing.Size(100, 13);
             this.label3.TabIndex = 11;
             this.label3.Text = "Game Board Height";
             this.label3.Click += new System.EventHandler(this.label3_Click);
@@ -153,32 +153,32 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(124, 224);
+            this.label4.Location = new System.Drawing.Point(124, 243);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(85, 12);
+            this.label4.Size = new System.Drawing.Size(78, 13);
             this.label4.TabIndex = 13;
             this.label4.Text = "Game Difficulty";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // cbxGameDifficulty
             // 
+            this.cbxGameDifficulty.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxGameDifficulty.FormattingEnabled = true;
             this.cbxGameDifficulty.Items.AddRange(new object[] {
             "Easy",
             "Medium",
             "Hard",
             "Very Hard"});
-            this.cbxGameDifficulty.Location = new System.Drawing.Point(215, 221);
+            this.cbxGameDifficulty.Location = new System.Drawing.Point(215, 239);
             this.cbxGameDifficulty.Name = "cbxGameDifficulty";
-            this.cbxGameDifficulty.Size = new System.Drawing.Size(67, 20);
+            this.cbxGameDifficulty.Size = new System.Drawing.Size(67, 21);
             this.cbxGameDifficulty.TabIndex = 12;
-            this.cbxGameDifficulty.Text = "Medium";
             // 
             // NewGameDialog
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 482);
+            this.ClientSize = new System.Drawing.Size(535, 522);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.cbxGameDifficulty);
             this.Controls.Add(this.label3);

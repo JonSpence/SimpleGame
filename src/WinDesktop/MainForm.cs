@@ -1,5 +1,6 @@
 ﻿using GameLib;
 using GameLib.Bots;
+using GameLib.Interfaces;
 using GameLib.Messages;
 using GameLib.Rules;
 using SkiaSharp.Views.Desktop;
@@ -139,7 +140,10 @@ namespace WinDesktop
         }
         */
 
-        private void StartNewGame(int playerCount, int boardWidth, int boardHeight, string gameDifficulty)
+
+        
+
+        private void StartNewGame(int playerCount, int boardWidth, int boardHeight, IBot gameDifficulty)
         {
 
             // Basic setup
@@ -149,6 +153,9 @@ namespace WinDesktop
             Controller.GameBoard.ReinforcementRule = new RandomBorder();
             // Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
 
+
+
+            /*
             // create the bots by difficulty
             if (gameDifficulty == "Easy")
             {
@@ -173,6 +180,7 @@ namespace WinDesktop
                 Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
                 Console.WriteLine("Very Hard: BorderShrink");
             }
+            */
 
             // Start the timer for bot stuff
             timer1.Enabled = true;
