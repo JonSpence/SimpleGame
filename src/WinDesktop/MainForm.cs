@@ -109,12 +109,37 @@ namespace WinDesktop
             NewGameDialog dlg = new NewGameDialog();
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                StartNewGame(dlg.NewNumPlayers(),dlg.NewBoardWidth(),dlg.NewBoardHeight());
+                StartNewGame(dlg.NewNumPlayers(),dlg.NewBoardWidth(),dlg.NewBoardHeight(), dlg.NewGameDifficulty());
                 skcGame.Invalidate();
             }
         }
 
-        private void StartNewGame(int playerCount, int boardWidth, int boardHeight)
+        /* 
+        //Set the bot by difficulty
+        string bot = "RandomBot()";
+
+        private void pickBotByDifficulty(string gameDifficulty)
+        {
+            IBot bot = null;
+            switch (ddlDifficulty.SelectedIndex)
+            {
+                case 0: bot = new BorderShrinkBot(); break;
+                case 1: bot = new TurtleBot(); break;
+                default: bot = new RandomBot(); break;
+            }
+
+            foreach (var p in b.Players)
+            {
+                if (!p.IsHuman)
+                {
+                    p.Bot = bot;
+                }
+            }
+            
+        }
+        */
+
+        private void StartNewGame(int playerCount, int boardWidth, int boardHeight, string gameDifficulty)
         {
 
             // Basic setup
@@ -122,7 +147,32 @@ namespace WinDesktop
             Controller.GameBoard = Board.NewBoard(boardWidth, boardHeight, playerCount, Themes.RAINBOW_THEME);
             Controller.GameBoard.BattleRule = new RankedDice();
             Controller.GameBoard.ReinforcementRule = new RandomBorder();
-            Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
+            // Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
+
+            // create the bots by difficulty
+            if (gameDifficulty == "Easy")
+            {
+                Controller.GameBoard.Players[1].Bot = new CautiousBot();
+                Console.WriteLine("Easy: Cautious");
+            }
+
+            else if (gameDifficulty == "Medium")
+            {
+                Controller.GameBoard.Players[1].Bot = new RandomBot();
+                Console.WriteLine("Medium: Random");
+            }
+
+            else if (gameDifficulty == "Hard")
+            {
+                Controller.GameBoard.Players[1].Bot = new TurtleBot();
+                Console.WriteLine("Hard: Turtle");
+            }
+
+            else if (gameDifficulty == "Very Hard")
+            {
+                Controller.GameBoard.Players[1].Bot = new BorderShrinkBot();
+                Console.WriteLine("Very Hard: BorderShrink");
+            }
 
             // Start the timer for bot stuff
             timer1.Enabled = true;

@@ -35,7 +35,6 @@ namespace WinDesktop
         /// <returns></returns>
         public int NewBoardWidth()
         {
-
             return Int32.Parse(cbxGameWidth.SelectedItem.ToString());
         }
 
@@ -45,13 +44,32 @@ namespace WinDesktop
         /// <returns></returns>
         public int NewBoardHeight()
         {
-
             return Int32.Parse(cbxGameHeight.SelectedItem.ToString());
         }
 
+        /// <summary>
+        /// Allow access to the private difficulty of new game board through a public method
+        /// </summary>
+        /// <returns></returns>
+        public string NewGameDifficulty()
+        {
+            //return Int32.Parse(cbxGameHeight.SelectedItem.ToString());
+            return cbxGameDifficulty.SelectedItem.ToString();
+        }
 
+        private void cbxGameHeight_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
+        }
 
+        private void label3_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
