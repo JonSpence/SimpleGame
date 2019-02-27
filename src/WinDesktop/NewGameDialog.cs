@@ -65,12 +65,6 @@ namespace WinDesktop
             typeof (RandomBot), typeof (CautiousBot), typeof (TurtleBot), typeof (BorderShrinkBot)
         };
 
-        /* public IBot[] difficultyInstance = new IBot[]
-        {
-            new RandomBot(), new CautiousBot(), new TurtleBot(), new BorderShrinkBot()
-        };
-        */
-
 
         /// <summary>
         /// Allow access to the private difficulty of new game board through a public method
